@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    /* Trustworthy Teal color scheme for financial app */
+    --primary: 168 74% 28%;  /* Teal-600 */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 180 60% 96%;  /* Teal-50 */
+    --secondary-foreground: 168 74% 28%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 168 74% 35%;  /* Teal-500 */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 168 74% 28%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 168 74% 45%;  /* Teal-400 */
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 168 74% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-gray-50 text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  body.dark {
+    @apply bg-gray-900;
+  }
+}
+
+/* Subtle animations for human-made feel */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out forwards;
+  }
+  
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Accessibility Features */
+.large-text,
+.large-text * {
+  font-size: 1.25rem !important;
+  line-height: 1.75rem !important;
+}
+
+.large-text input,
+.large-text button {
+  padding: 1rem !important;
+  font-size: 1.25rem !important;
+}
+
+.high-contrast {
+  filter: contrast(150%) !important;
+}
+
+.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .bg-white,
+.high-contrast .bg-gray-50 {
+  background-color: #1a1a1a !important;
+}
+
+.high-contrast .text-gray-900 {
+  color: #ffffff !important;
+}
+
+.high-contrast .border-gray-200 {
+  border-color: #444444 !important;
+}
+
+.simple-mode {
+  font-family: Arial, sans-serif !important;
+}
+
+.simple-mode * {
+  font-family: Arial, sans-serif !important;
+}
+
+.large-buttons button {
+  min-height: 3rem !important;
+  padding: 1rem 2rem !important;
+  font-size: 1.125rem !important;
+}
+
+.voice-mode {
+  outline: 2px solid #3b82f6;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}

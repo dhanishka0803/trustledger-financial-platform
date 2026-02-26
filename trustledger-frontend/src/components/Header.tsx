@@ -1,0 +1,183 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { Bell, Moon, Sun, User, Settings, LogOut, Shield, CreditCard, FileText, HelpCircle, Palette } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from '@/components/ui/dropdown-menu'
+
+export default function Header() {
+  const [darkMode, setDarkMode] = useState(false)
+  const [notifications, setNotifications] = useState(0) // Changed to 0
+  const [userName, setUserName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+
+  useEffect(() => {
+    const name = localStorage.getItem('userName') || 'User'
+    const email = localStorage.getItem('userEmail') || 'user@trustledger.com'
+    setUserName(name)
+    setUserEmail(email)
+    
+    // Check for saved dark mode preference
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true'
+    setDarkMode(savedDarkMode)
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark')
+    }
+  }, [])
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode
+    setDarkMode(newDarkMode)
+    localStorage.setItem('darkMode', String(newDarkMode))
+    document.documentElement.classList.toggle('dark')
+  }
+
+  const handleLogout = () => {
+    if (!window.confirm('Are you sure you want to log out?')) return
+    
+    localStorage.removeItem('token')
+    localStorage.removeItem('isLoggedIn')
+    localStorage.removeItem('userType')
+    localStorage.removeItem('userEmail')
+    localStorage.removeItem('userName')
+    localStorage.removeItem('userId')
+    localStorage.removeItem('hasTransactions')
+    window.location.href = '/'
+  }
+
+  return (
+    <header className="bg-white dark:bg-slate-800 shadow-sm border-b border-slate-200 dark:border-slate-700">
+      <div className="flex items-center justify-between px-6 py-4">
+        {/* App Title */}
+        <div className="flex items-center space-x-4">
+          <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+            <Shield className="w-5 h-5 text-white" />
+          </div>
+          <span className="text-lg font-bold text-gray-900 dark:text-white">TRUSTLEDGER</span>
+        </div>
+
+        {/* Right side */}
+        <div className="flex items-center space-x-4">
+          {/* Dark mode toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleDarkMode}
+            className="p-2"
+            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
+
+          {/* Notifications */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="relative p-2" title="Notifications">
+                <Bell className="w-4 h-4" />
+                {notifications > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {notifications}
+                  </span>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80">
+              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <div className="max-h-96 overflow-y-auto">
+                <DropdownMenuItem className="flex flex-col items-start p-3">
+                  <div className="flex items-start space-x-2 w-full">
+                    <Shield className="w-4 h-4 text-red-500 mt-1" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">Fraud Alert</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Suspicious transaction detected</p>
+                      <p className="text-xs text-gray-400 mt-1">2 hours ago</p>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex flex-col items-start p-3">
+                  <div className="flex items-start space-x-2 w-full">
+                    <CreditCard className="w-4 h-4 text-blue-500 mt-1" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">Payment Received</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">₹5,000 credited to account</p>
+                      <p className="text-xs text-gray-400 mt-1">5 hours ago</p>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex flex-col items-start p-3">
+                  <div className="flex items-start space-x-2 w-full">
+                    <FileText className="w-4 h-4 text-green-500 mt-1" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">Report Ready</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Monthly financial report available</p>
+                      <p className="text-xs text-gray-400 mt-1">1 day ago</p>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex flex-col items-start p-3">
+                  <div className="flex items-start space-x-2 w-full">
+                    <Bell className="w-4 h-4 text-yellow-500 mt-1" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">Bill Reminder</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Electricity bill due in 3 days</p>
+                      <p className="text-xs text-gray-400 mt-1">2 days ago</p>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex flex-col items-start p-3">
+                  <div className="flex items-start space-x-2 w-full">
+                    <Shield className="w-4 h-4 text-teal-500 mt-1" />
+                    <div className="flex-1">
+                      <p className="font-semibold text-sm">Security Update</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">New login from Mumbai detected</p>
+                      <p className="text-xs text-gray-400 mt-1">3 days ago</p>
+                    </div>
+                  </div>
+                </DropdownMenuItem>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="justify-center text-teal-600 font-semibold">
+                View All Notifications
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* User menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-teal-700 rounded-full flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-medium">{userName}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>
+                <div>
+                  <p className="font-semibold">{userName}</p>
+                  <p className="text-xs text-gray-500">{userEmail}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </header>
+  )
+}
