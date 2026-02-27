@@ -94,7 +94,7 @@ export default function AIAssistant() {
     
     try {
       const response = await aiAPI.chat(userInput)
-      const aiResponse = response.data.response
+      const aiResponse = response.data.answer || response.data.response || 'I can help with KYC, AML, fraud detection, and compliance questions.'
       setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }])
       
       // Speak the response if voice mode is enabled
