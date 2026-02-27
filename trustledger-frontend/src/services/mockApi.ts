@@ -66,10 +66,27 @@ export class MockAPIService {
     const responses: Record<string, string> = {
       'kyc': 'KYC (Know Your Customer) is a mandatory process for financial institutions to verify customer identity and assess risk.',
       'aml': 'AML (Anti-Money Laundering) regulations help prevent financial crimes by monitoring suspicious transactions.',
-      'fraud': 'Our AI system analyzes transaction patterns, amounts, merchants, and locations to detect potential fraud in real-time.'
+      'fraud': 'Our AI system analyzes transaction patterns, amounts, merchants, and locations to detect potential fraud in real-time.',
+      'transaction': 'Transactions are processed through our Pathway-powered fraud detection system with real-time risk scoring.',
+      'account': 'Your account includes features like fraud protection, spending analytics, and compliance monitoring.',
+      'balance': 'Your current account balance is ₹1,25,000 with recent transactions showing normal spending patterns.',
+      'spending': 'Your spending analysis shows ₹45,000 this month across categories: Shopping (40%), Food (25%), Transport (20%), Others (15%).',
+      'budget': 'Based on your spending patterns, I recommend setting a monthly budget of ₹50,000 with alerts at 80% usage.',
+      'investment': 'Consider diversifying your portfolio with 60% equity, 30% debt, and 10% gold for balanced growth.',
+      'loan': 'You are eligible for personal loans up to ₹5,00,000 at 12% interest rate based on your credit score.',
+      'credit': 'Your credit score is 750 (Excellent). Keep maintaining timely payments to improve it further.',
+      'insurance': 'I recommend health insurance of ₹10 lakhs and term life insurance of ₹1 crore based on your profile.',
+      'tax': 'You can save up to ₹1.5 lakhs under Section 80C through ELSS, PPF, or life insurance premiums.',
+      'market': 'Current market trends show NIFTY at 22,485 (+0.16%), SENSEX at 73,912 (+0.08%). Markets are moderately bullish.',
+      'risk': 'Your portfolio risk is moderate with a diversification score of 7.5/10. Consider adding international funds.',
+      'goal': 'For your retirement goal of ₹2 crores in 25 years, invest ₹15,000 monthly in equity mutual funds.',
+      'emergency': 'Maintain an emergency fund of ₹3-6 months expenses (₹1.5-3 lakhs) in liquid funds or savings account.',
+      'compliance': 'Your account is fully compliant with KYC (92% score) and AML (95% score) regulations.',
+      'security': 'Your account has multi-factor authentication, transaction alerts, and real-time fraud monitoring enabled.',
+      'help': 'I can assist with: Account queries, Transaction analysis, Investment advice, Loan eligibility, Tax planning, Market updates, Fraud alerts, and Compliance checks.'
     };
     
     const key = Object.keys(responses).find(k => query.toLowerCase().includes(k));
-    return { answer: key ? responses[key] : 'I can help with KYC, AML, fraud detection, and compliance questions.' };
+    return { answer: key ? responses[key] : 'I can help with account management, transactions, investments, loans, insurance, tax planning, market analysis, and security. What would you like to know?' };
   }
 }
