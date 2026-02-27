@@ -68,6 +68,7 @@ export default function Transactions() {
   const [submitting, setSubmitting] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('All')
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const [formData, setFormData] = useState({
     merchant: '',
     amount: '',
@@ -174,9 +175,12 @@ export default function Transactions() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar 
+        isMobileOpen={isMobileSidebarOpen} 
+        onMobileClose={() => setIsMobileSidebarOpen(false)} 
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Header onMobileMenuToggle={() => setIsMobileSidebarOpen(true)} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
           <div className="container mx-auto px-6 py-8">
             {/* Header */}

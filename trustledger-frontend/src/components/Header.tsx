@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Bell, Moon, Sun, User, Settings, LogOut, Shield, CreditCard, FileText, HelpCircle, Palette } from 'lucide-react'
+import { Bell, Moon, Sun, User, Settings, LogOut, Shield, CreditCard, FileText, HelpCircle, Palette, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -13,7 +13,11 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu'
 
-export default function Header() {
+interface HeaderProps {
+  onMobileMenuToggle?: () => void
+}
+
+export default function Header({ onMobileMenuToggle }: HeaderProps) {
   const [darkMode, setDarkMode] = useState(false)
   const [notifications, setNotifications] = useState(0) // Changed to 0
   const [userName, setUserName] = useState('')
@@ -58,10 +62,21 @@ export default function Header() {
       <div className="flex items-center justify-between px-6 py-4">
         {/* App Title */}
         <div className="flex items-center space-x-4">
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onMobileMenuToggle}
+            className="p-2 md:hidden"
+            title="Open Menu"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+          
           <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
             <Shield className="w-5 h-5 text-white" />
           </div>
-          <span className="text-lg font-bold text-gray-900 dark:text-white">TRUSTLEDGER</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-white hidden sm:block">TRUSTLEDGER</span>
         </div>
 
         {/* Right side */}

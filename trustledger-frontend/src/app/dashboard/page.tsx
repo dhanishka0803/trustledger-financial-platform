@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [fraudAlerts, setFraudAlerts] = useState<any[]>([])
   const [transactions, setTransactions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -108,9 +109,12 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar 
+        isMobileOpen={isMobileSidebarOpen} 
+        onMobileClose={() => setIsMobileSidebarOpen(false)} 
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Header onMobileMenuToggle={() => setIsMobileSidebarOpen(true)} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
           <div className="container mx-auto px-6 py-8">
             {loading ? (
@@ -121,41 +125,63 @@ export default function Dashboard() {
                 </div>
               </div>
             ) : !hasTransactions ? (
-              <div className="text-center py-20">
+              <div className="text-center py-12">
                 <div className="mb-8">
                   <img 
-                    src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400&h=300&fit=crop&crop=center" 
-                    alt="Financial growth and analytics" 
-                    className="w-64 h-48 object-cover rounded-lg shadow-lg mx-auto mb-6"
+                    src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&h=300&fit=crop&crop=center" 
+                    alt="Modern financial dashboard with charts and analytics" 
+                    className="w-80 h-52 object-cover rounded-xl shadow-xl mx-auto mb-6 border-4 border-white"
                   />
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-4">Welcome to TRUSTLEDGER</h1>
-                <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                  Start your financial journey with AI-powered fraud detection and real-time transaction monitoring.
+                <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to TRUSTLEDGER</h1>
+                <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+                  Your AI-powered financial intelligence platform is ready. Start monitoring transactions with real-time fraud detection, 
+                  market analytics, and comprehensive security features designed to protect your financial future.
                 </p>
                 <Button 
                   onClick={handleAddTransaction}
-                  className="bg-teal-700 hover:bg-teal-800"
+                  className="bg-teal-700 hover:bg-teal-800 text-lg px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-5 h-5 mr-2" />
                   Add Your First Transaction
                 </Button>
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
-                  <div className="p-4 bg-white rounded-lg shadow">
-                    <Shield className="w-6 h-6 text-teal-600 mb-2" />
-                    <h3 className="font-semibold text-gray-900">Fraud Protection</h3>
-                    <p className="text-sm text-gray-600">AI-powered detection monitors your transactions 24/7</p>
+                <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                  <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200">
+                    <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                      <Shield className="w-6 h-6 text-teal-600" />
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-2">AI Fraud Protection</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Advanced machine learning algorithms monitor every transaction in real-time, 
+                      detecting suspicious patterns and protecting your account 24/7 with instant alerts.
+                    </p>
                   </div>
-                  <div className="p-4 bg-white rounded-lg shadow">
-                    <Activity className="w-6 h-6 text-teal-600 mb-2" />
-                    <h3 className="font-semibold text-gray-900">Real-Time Alerts</h3>
-                    <p className="text-sm text-gray-600">Get instant notifications about suspicious activity</p>
+                  <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                      <Activity className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-2">Real-Time Monitoring</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Get instant notifications about account activity, suspicious transactions, 
+                      and security events. Stay informed with comprehensive alerts and detailed insights.
+                    </p>
                   </div>
-                  <div className="p-4 bg-white rounded-lg shadow">
-                    <TrendingUp className="w-6 h-6 text-teal-600 mb-2" />
-                    <h3 className="font-semibold text-gray-900">Smart Insights</h3>
-                    <p className="text-sm text-gray-600">Understand your spending patterns with detailed analytics</p>
+                  <div className="p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
+                      <TrendingUp className="w-6 h-6 text-green-600" />
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-900 mb-2">Smart Analytics</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Understand your spending patterns with detailed analytics, market insights, 
+                      and personalized recommendations to optimize your financial health and growth.
+                    </p>
                   </div>
+                </div>
+                <div className="mt-8 p-4 bg-teal-50 rounded-lg max-w-2xl mx-auto">
+                  <p className="text-sm text-teal-800">
+                    <strong>🔒 Bank-Grade Security:</strong> Your data is protected with enterprise-level encryption, 
+                    multi-factor authentication, and compliance with international financial security standards.
+                  </p>
                 </div>
               </div>
             ) : (

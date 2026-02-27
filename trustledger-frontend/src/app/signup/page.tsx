@@ -130,6 +130,7 @@ export default function SignUp() {
       const { access_token, user } = response.data
       
       // Save auth data
+      localStorage.clear() // Clear all previous data
       localStorage.setItem('token', access_token)
       localStorage.setItem('userType', 'user')
       localStorage.setItem('isLoggedIn', 'true')
@@ -137,6 +138,8 @@ export default function SignUp() {
       localStorage.setItem('userEmail', formData.email)
       localStorage.setItem('userId', user.id.toString())
       localStorage.setItem('isNewUser', 'true')
+      localStorage.setItem('hasTransactions', 'false')
+      localStorage.setItem('isAccountFrozen', 'false')
       
       // Save accessibility preferences
       if (formData.needsAccessibility) {
