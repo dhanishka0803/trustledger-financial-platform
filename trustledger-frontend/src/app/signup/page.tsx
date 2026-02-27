@@ -417,7 +417,7 @@ export default function SignUp() {
                         passwordStrength.color === 'yellow' ? 'text-yellow-600' :
                         'text-red-600'
                       }`}>
-                        {passwordStrength.label}
+                        {passwordStrength.feedback}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">

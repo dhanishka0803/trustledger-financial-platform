@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { MockAPIService } from '../services/mockApi';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const IS_VERCEL = process.env.VERCEL || process.env.NODE_ENV === 'production';
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -8,6 +10,8 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+const mockAPI = MockAPIService.getInstance();
 
 // Add auth token to requests
 api.interceptors.request.use((config) => {
@@ -36,8 +40,13 @@ api.interceptors.response.use(
 
 // Auth APIs
 export const authAPI = {
-  login: (username: string, password: string) =>
-    api.post('/auth/login', { username, password }),
+  login: async (username: string, password: string) => {
+    if (IS_VERCEL) {
+      const result = await mockAPI.login(username, password);
+      return { data: result };
+    }
+    return api.post('/auth/login', { username, password });
+  },
 
   register: (data: { username: string; email: string; password: string; full_name?: string; phone?: string }) =>
     api.post('/auth/register', data),
@@ -53,8 +62,13 @@ export const authAPI = {
 
 // Transaction APIs
 export const transactionAPI = {
-  getAll: (params?: { skip?: number; limit?: number; category?: string }) =>
-    api.get('/transactions/', { params }),
+  getAll: async (params?: { skip?: number; limit?: number; category?: string }) => {
+    if (IS_VERCEL) {
+      const result = await mockAPI.getTransactions();
+      return { data: result };
+    }
+    return api.get('/transactions/', { params });
+  },
 
   create: (data: { merchant: string; amount: number; category?: string; description?: string; location?: string }) =>
     api.post('/transactions/', data),
@@ -88,7 +102,13 @@ export const fraudAPI = {
 
 // Market APIs
 export const marketAPI = {
-  getLive: () => api.get('/market/live'),
+  getLive: async () => {
+    if (IS_VERCEL) {
+      const result = await mockAPI.getMarketData();
+      return { data: result };
+    }
+    return api.get('/market/live');
+  },
   getRisk: () => api.get('/market/risk'),
   getVolatility: () => api.get('/market/volatility'),
   getAnalysis: () => api.get('/market/analysis'),
@@ -98,8 +118,13 @@ export const marketAPI = {
 
 // AI APIs
 export const aiAPI = {
-  chat: (message: string, context?: string) =>
-    api.post('/ai/chat', { message, context: context || '' }),
+  chat: async (message: string, context?: string) => {
+    if (IS_VERCEL) {
+      const result = await mockAPI.askAI(message);
+      return { data: result };
+    }
+    return api.post('/ai/chat', { message, context: context || '' });
+  },
 
   queryDocuments: (query: string, documentType?: string) =>
     api.post('/ai/document-query', { query, document_type: documentType }),
