@@ -16,13 +16,17 @@ export default function Settings() {
   const [simpleMode, setSimpleMode] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   // Load settings on mount
   useEffect(() => {
-    setLargeText(localStorage.getItem('largeText') === 'true')
-    setHighContrast(localStorage.getItem('highContrast') === 'true')
-    setVoiceMode(localStorage.getItem('voiceMode') === 'true')
-    setSimpleMode(localStorage.getItem('simpleMode') === 'true')
+    setMounted(true)
+    if (typeof window !== 'undefined') {
+      setLargeText(localStorage.getItem('largeText') === 'true')
+      setHighContrast(localStorage.getItem('highContrast') === 'true')
+      setVoiceMode(localStorage.getItem('voiceMode') === 'true')
+      setSimpleMode(localStorage.getItem('simpleMode') === 'true')
+    }
   }, [])
 
   const saveToBackend = async () => {
@@ -46,36 +50,42 @@ export default function Settings() {
   const toggleLargeText = () => {
     const newValue = !largeText
     setLargeText(newValue)
-    if (newValue) {
-      document.body.classList.add('large-text')
-    } else {
-      document.body.classList.remove('large-text')
+    if (typeof window !== 'undefined') {
+      if (newValue) {
+        document.body.classList.add('large-text')
+      } else {
+        document.body.classList.remove('large-text')
+      }
+      localStorage.setItem('largeText', String(newValue))
     }
-    localStorage.setItem('largeText', String(newValue))
     saveToBackend()
   }
 
   const toggleHighContrast = () => {
     const newValue = !highContrast
     setHighContrast(newValue)
-    if (newValue) {
-      document.body.classList.add('high-contrast')
-      document.documentElement.classList.add('dark')
-    } else {
-      document.body.classList.remove('high-contrast')
-      document.documentElement.classList.remove('dark')
+    if (typeof window !== 'undefined') {
+      if (newValue) {
+        document.body.classList.add('high-contrast')
+        document.documentElement.classList.add('dark')
+      } else {
+        document.body.classList.remove('high-contrast')
+        document.documentElement.classList.remove('dark')
+      }
+      localStorage.setItem('highContrast', String(newValue))
     }
-    localStorage.setItem('highContrast', String(newValue))
     saveToBackend()
   }
 
   const toggleVoiceMode = () => {
     const newValue = !voiceMode
     setVoiceMode(newValue)
-    localStorage.setItem('voiceMode', String(newValue))
-    if (newValue && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance('Voice mode enabled')
-      speechSynthesis.speak(utterance)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('voiceMode', String(newValue))
+      if (newValue && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance('Voice mode enabled')
+        speechSynthesis.speak(utterance)
+      }
     }
     saveToBackend()
   }
@@ -83,13 +93,19 @@ export default function Settings() {
   const toggleSimpleMode = () => {
     const newValue = !simpleMode
     setSimpleMode(newValue)
-    if (newValue) {
-      document.body.classList.add('simple-mode')
-    } else {
-      document.body.classList.remove('simple-mode')
+    if (typeof window !== 'undefined') {
+      if (newValue) {
+        document.body.classList.add('simple-mode')
+      } else {
+        document.body.classList.remove('simple-mode')
+      }
+      localStorage.setItem('simpleMode', String(newValue))
     }
-    localStorage.setItem('simpleMode', String(newValue))
     saveToBackend()
+  }
+
+  if (!mounted) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -113,11 +129,11 @@ export default function Settings() {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Full Name</label>
-                    <Input defaultValue={localStorage.getItem('userName') || 'User'} />
+                    <Input defaultValue={typeof window !== 'undefined' ? localStorage.getItem('userName') || 'User' : 'User'} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Email</label>
-                    <Input defaultValue={localStorage.getItem('userEmail') || 'user@trustledger.com'} />
+                    <Input defaultValue={typeof window !== 'undefined' ? localStorage.getItem('userEmail') || 'user@trustledger.com' : 'user@trustledger.com'} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Phone</label>
