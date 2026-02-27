@@ -63,7 +63,13 @@ export class MockAPIService {
   }
 
   async askAI(query: string) {
+    const userName = typeof window !== 'undefined' ? localStorage.getItem('userName') || 'there' : 'there';
     const responses: Record<string, string> = {
+      'hello': `Hello ${userName}! I'm your TRUSTLEDGER AI assistant. How can I help you with your finances today?`,
+      'hi': `Hi ${userName}! Welcome back to TRUSTLEDGER. What financial assistance do you need?`,
+      'good morning': `Good morning ${userName}! Ready to manage your finances today?`,
+      'good afternoon': `Good afternoon ${userName}! How can I assist with your financial needs?`,
+      'good evening': `Good evening ${userName}! What financial insights can I provide?`,
       'kyc': 'KYC (Know Your Customer) is a mandatory process for financial institutions to verify customer identity and assess risk.',
       'aml': 'AML (Anti-Money Laundering) regulations help prevent financial crimes by monitoring suspicious transactions.',
       'fraud': 'Our AI system analyzes transaction patterns, amounts, merchants, and locations to detect potential fraud in real-time.',
@@ -87,6 +93,6 @@ export class MockAPIService {
     };
     
     const key = Object.keys(responses).find(k => query.toLowerCase().includes(k));
-    return { answer: key ? responses[key] : 'I can help with account management, transactions, investments, loans, insurance, tax planning, market analysis, and security. What would you like to know?' };
+    return { answer: key ? responses[key] : `Hello ${userName}! I can help with account management, transactions, investments, loans, insurance, tax planning, market analysis, and security. What would you like to know?` };
   }
 }

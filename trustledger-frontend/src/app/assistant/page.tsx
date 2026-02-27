@@ -11,7 +11,7 @@ import { aiAPI } from '@/lib/api'
 
 export default function AIAssistant() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I\'m your AI financial assistant. I can help with fraud alerts, spending analysis, market insights, compliance, and more. How can I help you today?' },
+    { role: 'assistant', content: `Hello ${typeof window !== 'undefined' ? localStorage.getItem('userName') || 'there' : 'there'}! I'm your AI financial assistant. I can help with fraud alerts, spending analysis, market insights, compliance, and more. How can I help you today?` },
   ])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
