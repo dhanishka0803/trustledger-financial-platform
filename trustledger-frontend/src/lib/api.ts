@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { MockAPIService } from '../services/mockApi';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const IS_VERCEL = process.env.VERCEL || process.env.NODE_ENV === 'production';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://trustledger-financial-platform.onrender.com';
+const IS_VERCEL = false; // Always use real API now
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api`,
