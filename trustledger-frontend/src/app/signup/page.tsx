@@ -159,7 +159,7 @@ export default function SignUp() {
       console.log('User registered:', newUser) // Debug log
       console.log('All registered users:', registeredUsers) // Debug log
       
-      // Set auth data for current session
+      // Set auth data for current session (DON'T clear localStorage)
       localStorage.setItem('userType', 'user')
       localStorage.setItem('isLoggedIn', 'true')
       localStorage.setItem('userName', formData.name)

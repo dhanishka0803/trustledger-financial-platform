@@ -55,11 +55,8 @@ export default function Login() {
 
       if (foundUser) {
         console.log('Registered user login successful')
-        localStorage.clear()
         
-        // Restore registered users list
-        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers))
-        
+        // DON'T clear localStorage - just set auth data
         localStorage.setItem('userType', 'user')
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userName', foundUser.name)
