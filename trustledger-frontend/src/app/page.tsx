@@ -234,28 +234,28 @@ export default function LandingPage() {
       </main>
 
       {/* Enhanced Footer */}
-      <footer className="bg-gray-900 text-white py-16">
+      <footer className="bg-gradient-to-r from-teal-800 via-emerald-800 to-teal-900 text-white py-16">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-lg flex items-center justify-center">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">TRUSTLEDGER</h3>
-                  <p className="text-sm text-gray-400">Financial Intelligence</p>
+                  <p className="text-sm text-teal-200">Financial Intelligence</p>
                 </div>
               </div>
-              <p className="text-gray-400 text-sm leading-relaxed">
+              <p className="text-teal-100 text-sm leading-relaxed">
                 Next-generation financial security platform powered by Pathway framework, 
                 designed for universal accessibility and real-time protection.
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Platform</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <h4 className="font-semibold mb-4 text-teal-100">Platform</h4>
+              <ul className="space-y-2 text-sm text-teal-200">
                 <li><a href="#" className="hover:text-white transition-colors">Fraud Detection</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Market Analytics</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">AI Assistant</a></li>
@@ -264,8 +264,8 @@ export default function LandingPage() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Accessibility</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <h4 className="font-semibold mb-4 text-teal-100">Accessibility</h4>
+              <ul className="space-y-2 text-sm text-teal-200">
                 <li><a href="#" className="hover:text-white transition-colors">Screen Reader Support</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Voice Navigation</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">High Contrast Mode</a></li>
@@ -274,8 +274,8 @@ export default function LandingPage() {
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
+              <h4 className="font-semibold mb-4 text-teal-100">Support</h4>
+              <ul className="space-y-2 text-sm text-teal-200">
                 <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">API Documentation</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
@@ -284,18 +284,18 @@ export default function LandingPage() {
             </div>
           </div>
           
-          <div className="border-t border-gray-800 pt-8">
+          <div className="border-t border-teal-700 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <div className="flex items-center space-x-6 text-sm text-gray-400">
-                <span>© 2024 TRUSTLEDGER. All rights reserved.</span>
+              <div className="flex items-center space-x-6 text-sm text-teal-200">
+                <span>© 2025 TRUSTLEDGER. All rights reserved.</span>
                 <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
                 <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-400">Powered by</span>
+                <span className="text-sm text-teal-200">Powered by</span>
                 <div className="flex items-center space-x-2">
-                  <Zap className="w-4 h-4 text-teal-400" />
-                  <span className="text-sm font-medium text-teal-400">Pathway Framework</span>
+                  <Zap className="w-4 h-4 text-teal-300" />
+                  <span className="text-sm font-medium text-teal-300">Pathway Framework</span>
                 </div>
               </div>
             </div>
