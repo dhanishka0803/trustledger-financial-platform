@@ -287,7 +287,7 @@ export default function LandingPage() {
           <div className="border-t border-teal-700 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
               <div className="flex items-center space-x-6 text-sm text-teal-200">
-                <span>© 2025 TRUSTLEDGER. All rights reserved.</span>
+                <span>© 2026 TRUSTLEDGER. All rights reserved.</span>
                 <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
                 <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
               </div>
