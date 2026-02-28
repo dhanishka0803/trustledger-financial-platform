@@ -75,8 +75,8 @@ export default function Login() {
         setUsername('')
         setPassword('')
         
-        await new Promise(resolve => setTimeout(resolve, 200))
-        router.push('/dashboard')
+        // Force navigation to dashboard
+        window.location.href = '/dashboard'
         return
       }
       
@@ -93,8 +93,8 @@ export default function Login() {
         setUsername('')
         setPassword('')
         
-        await new Promise(resolve => setTimeout(resolve, 200))
-        router.push('/admin')
+        // Force navigation to admin
+        window.location.href = '/admin'
         
       } else if (username === 'user' && password === 'user123') {
         console.log('User login successful')
@@ -111,8 +111,8 @@ export default function Login() {
         setUsername('')
         setPassword('')
         
-        await new Promise(resolve => setTimeout(resolve, 200))
-        router.push('/dashboard')
+        // Force navigation to dashboard
+        window.location.href = '/dashboard'
         
       } else {
         setLoading(false)
