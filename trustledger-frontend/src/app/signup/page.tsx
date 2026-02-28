@@ -123,44 +123,32 @@ export default function SignUp() {
       // Generate username from email or name
       const username = formData.email.split('@')[0] || formData.name.toLowerCase().replace(/\s+/g, '')
       
-      // Try to register with backend, but don't fail if it's not available
-      let backendResponse = null
-      try {
-        backendResponse = await Promise.race([
-          authAPI.register({
-            username: username,
-            email: formData.email,
-            password: formData.password,
-            full_name: formData.name,
-            phone: formData.mobile
-          }),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Backend timeout')), 3000)
-          )
-        ])
-      } catch (backendError) {
-        console.log('Backend registration failed, proceeding with local setup:', backendError)
-        // Continue with local setup even if backend fails
+      // Save user to registered users list
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      const newUser = {
+        id: Date.now().toString(),
+        username: username,
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        phone: formData.mobile,
+        accessibilitySettings: formData.needsAccessibility ? {
+          largeText: formData.accessibilityNeeds.visualImpairment ? 'true' : 'false',
+          highContrast: formData.accessibilityNeeds.visualImpairment ? 'true' : 'false',
+          voiceMode: formData.accessibilityNeeds.visualImpairment ? 'true' : 'false',
+          simpleMode: formData.accessibilityNeeds.cognitiveDisability ? 'true' : 'false'
+        } : {}
       }
       
-      // Clear all previous data and set up new user
-      localStorage.clear()
+      registeredUsers.push(newUser)
+      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers))
       
-      // Set auth data
-      if (backendResponse?.data) {
-        const { access_token, user } = backendResponse.data
-        localStorage.setItem('token', access_token)
-        localStorage.setItem('userId', user.id.toString())
-      } else {
-        // Fallback for when backend is not available
-        localStorage.setItem('token', 'demo-token-' + Date.now())
-        localStorage.setItem('userId', Date.now().toString())
-      }
-      
+      // Set auth data for current session
       localStorage.setItem('userType', 'user')
       localStorage.setItem('isLoggedIn', 'true')
       localStorage.setItem('userName', formData.name)
       localStorage.setItem('userEmail', formData.email)
+      localStorage.setItem('userId', newUser.id)
       localStorage.setItem('isNewUser', 'true')
       localStorage.setItem('hasTransactions', 'false')
       localStorage.setItem('isAccountFrozen', 'false')
@@ -174,8 +162,13 @@ export default function SignUp() {
           localStorage.setItem('largeText', 'true')
           localStorage.setItem('highContrast', 'true')
           localStorage.setItem('voiceMode', 'true')
-          document.body.classList.add('large-text', 'high-contrast')
+          document.body.classList.add('large-text', 'high-contrast', 'dark')
           document.documentElement.classList.add('dark')
+          
+          // Enable voice navigation immediately
+          if ('speechSynthesis' in window) {
+            speak('Voice navigation is now enabled. You can navigate using voice commands.')
+          }
         }
         if (formData.accessibilityNeeds.cognitiveDisability) {
           localStorage.setItem('simpleMode', 'true')
@@ -189,7 +182,7 @@ export default function SignUp() {
       
       speak('Account created successfully')
       
-      // Redirect immediately
+      // Immediate redirect
       window.location.href = '/dashboard'
       
     } catch (err: any) {

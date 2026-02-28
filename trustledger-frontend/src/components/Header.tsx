@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Bell, Moon, Sun, User, Settings, LogOut, Shield, CreditCard, FileText, HelpCircle, Palette, Menu } from 'lucide-react'
+import { Bell, Moon, Sun, User, Settings, LogOut, Shield, CreditCard, FileText, HelpCircle, Palette, Menu, Volume2, VolumeX } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -19,9 +19,10 @@ interface HeaderProps {
 
 export default function Header({ onMobileMenuToggle }: HeaderProps) {
   const [darkMode, setDarkMode] = useState(false)
-  const [notifications, setNotifications] = useState(0) // Changed to 0
+  const [notifications, setNotifications] = useState(0)
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [voiceMode, setVoiceMode] = useState(false)
 
   useEffect(() => {
     const name = localStorage.getItem('userName') || 'User'
@@ -35,6 +36,10 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
     if (savedDarkMode) {
       document.documentElement.classList.add('dark')
     }
+    
+    // Check for voice mode
+    const savedVoiceMode = localStorage.getItem('voiceMode') === 'true'
+    setVoiceMode(savedVoiceMode)
   }, [])
 
   const toggleDarkMode = () => {
@@ -42,6 +47,18 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
     setDarkMode(newDarkMode)
     localStorage.setItem('darkMode', String(newDarkMode))
     document.documentElement.classList.toggle('dark')
+  }
+
+  const toggleVoiceMode = () => {
+    const newVoiceMode = !voiceMode
+    setVoiceMode(newVoiceMode)
+    localStorage.setItem('voiceMode', String(newVoiceMode))
+    
+    if (newVoiceMode && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance('Voice mode enabled. You can now navigate using voice commands.')
+      utterance.rate = 0.8
+      speechSynthesis.speak(utterance)
+    }
   }
 
   const handleLogout = () => {
@@ -55,6 +72,62 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
     localStorage.removeItem('userId')
     localStorage.removeItem('hasTransactions')
     window.location.href = '/'
+  }
+
+  // Get relevant notifications based on user settings
+  const getNotifications = () => {
+    const fraudAlerts = localStorage.getItem('fraudAlerts') !== 'false'
+    const transactionAlerts = localStorage.getItem('transactionAlerts') !== 'false'
+    const marketUpdates = localStorage.getItem('marketUpdates') !== 'false'
+    
+    const notifications = []
+    
+    if (fraudAlerts) {
+      notifications.push(
+        <DropdownMenuItem key="fraud" className="flex flex-col items-start p-3">
+          <div className="flex items-start space-x-2 w-full">
+            <Shield className="w-4 h-4 text-red-500 mt-1" />
+            <div className="flex-1">
+              <p className="font-semibold text-sm">Fraud Alert</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Suspicious transaction detected</p>
+              <p className="text-xs text-gray-400 mt-1">2 hours ago</p>
+            </div>
+          </div>
+        </DropdownMenuItem>
+      )
+    }
+    
+    if (transactionAlerts) {
+      notifications.push(
+        <DropdownMenuItem key="payment" className="flex flex-col items-start p-3">
+          <div className="flex items-start space-x-2 w-full">
+            <CreditCard className="w-4 h-4 text-blue-500 mt-1" />
+            <div className="flex-1">
+              <p className="font-semibold text-sm">Payment Received</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">₹5,000 credited to account</p>
+              <p className="text-xs text-gray-400 mt-1">5 hours ago</p>
+            </div>
+          </div>
+        </DropdownMenuItem>
+      )
+    }
+    
+    if (marketUpdates) {
+      notifications.push(
+        <DropdownMenuItem key="market" className="flex flex-col items-start p-3">
+          <div className="flex items-start space-x-2 w-full">
+            <FileText className="w-4 h-4 text-green-500 mt-1" />
+            <div className="flex-1">
+              <p className="font-semibold text-sm">Market Update</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">NIFTY up 0.8% today</p>
+              <p className="text-xs text-gray-400 mt-1">1 day ago</p>
+            </div>
+          </div>
+        </DropdownMenuItem>
+      )
+    }
+    
+    return notifications
   }
 
   return (
@@ -80,7 +153,19 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
         </div>
 
         {/* Right side */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          {/* Voice Mode Toggle - Accessible for disabled users */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleVoiceMode}
+            className={`p-2 ${voiceMode ? 'bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300' : ''}`}
+            title={voiceMode ? 'Disable Voice Mode' : 'Enable Voice Mode for Accessibility'}
+            aria-pressed={voiceMode}
+          >
+            {voiceMode ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </Button>
+
           {/* Dark mode toggle */}
           <Button
             variant="ghost"
@@ -108,56 +193,7 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
               <DropdownMenuLabel>Notifications</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <div className="max-h-96 overflow-y-auto">
-                <DropdownMenuItem className="flex flex-col items-start p-3">
-                  <div className="flex items-start space-x-2 w-full">
-                    <Shield className="w-4 h-4 text-red-500 mt-1" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm">Fraud Alert</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Suspicious transaction detected</p>
-                      <p className="text-xs text-gray-400 mt-1">2 hours ago</p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex flex-col items-start p-3">
-                  <div className="flex items-start space-x-2 w-full">
-                    <CreditCard className="w-4 h-4 text-blue-500 mt-1" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm">Payment Received</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">₹5,000 credited to account</p>
-                      <p className="text-xs text-gray-400 mt-1">5 hours ago</p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex flex-col items-start p-3">
-                  <div className="flex items-start space-x-2 w-full">
-                    <FileText className="w-4 h-4 text-green-500 mt-1" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm">Report Ready</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Monthly financial report available</p>
-                      <p className="text-xs text-gray-400 mt-1">1 day ago</p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex flex-col items-start p-3">
-                  <div className="flex items-start space-x-2 w-full">
-                    <Bell className="w-4 h-4 text-yellow-500 mt-1" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm">Bill Reminder</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Electricity bill due in 3 days</p>
-                      <p className="text-xs text-gray-400 mt-1">2 days ago</p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex flex-col items-start p-3">
-                  <div className="flex items-start space-x-2 w-full">
-                    <Shield className="w-4 h-4 text-teal-500 mt-1" />
-                    <div className="flex-1">
-                      <p className="font-semibold text-sm">Security Update</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">New login from Mumbai detected</p>
-                      <p className="text-xs text-gray-400 mt-1">3 days ago</p>
-                    </div>
-                  </div>
-                </DropdownMenuItem>
+                {getNotifications()}
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="justify-center text-teal-600 font-semibold">

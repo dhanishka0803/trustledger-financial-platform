@@ -1,0 +1,21 @@
+version: 1
+build:
+  - name: trustledger-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main_pathway.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.18
+services:
+  - type: web
+    name: trustledger-backend
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main_pathway.py
+    envVars:
+      - key: DATABASE_URL
+        generateValue: true
+      - key: SECRET_KEY
+        generateValue: true

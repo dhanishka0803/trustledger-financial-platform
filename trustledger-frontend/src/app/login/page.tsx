@@ -36,7 +36,43 @@ export default function Login() {
     setLoading(true)
 
     try {
-      // Auto-detect admin or user based on credentials
+      // Check for registered users from signup
+      const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      const foundUser = registeredUsers.find((user: any) => 
+        (user.username === username || user.email === username) && user.password === password
+      )
+
+      if (foundUser) {
+        console.log('Registered user login successful')
+        localStorage.clear()
+        
+        // Restore registered users list
+        localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers))
+        
+        localStorage.setItem('userType', 'user')
+        localStorage.setItem('isLoggedIn', 'true')
+        localStorage.setItem('userName', foundUser.name)
+        localStorage.setItem('userEmail', foundUser.email)
+        localStorage.setItem('userId', foundUser.id || Date.now().toString())
+        localStorage.setItem('hasTransactions', 'false')
+        
+        // Restore accessibility settings if they exist
+        if (foundUser.accessibilitySettings) {
+          Object.keys(foundUser.accessibilitySettings).forEach(key => {
+            localStorage.setItem(key, foundUser.accessibilitySettings[key])
+          })
+        }
+        
+        speak('Login successful')
+        setUsername('')
+        setPassword('')
+        
+        await new Promise(resolve => setTimeout(resolve, 200))
+        router.push('/dashboard')
+        return
+      }
+      
+      // Default demo accounts
       if (username === 'admin' && password === 'admin123') {
         console.log('Admin login successful')
         localStorage.clear()
@@ -46,7 +82,6 @@ export default function Login() {
         localStorage.setItem('userEmail', 'admin@trustledger.com')
         speak('Admin login successful')
         
-        // Clear form
         setUsername('')
         setPassword('')
         
@@ -65,7 +100,6 @@ export default function Login() {
         localStorage.setItem('isNewUser', 'true')
         speak('Login successful')
         
-        // Clear form
         setUsername('')
         setPassword('')
         
@@ -75,8 +109,7 @@ export default function Login() {
       } else {
         setLoading(false)
         speak('Invalid credentials')
-        alert('Invalid credentials. Try:\nUser: user / user123\nAdmin: admin / admin123')
-        // Clear form on failed login
+        alert('Invalid credentials. Please check your username and password or sign up for a new account.')
         setUsername('')
         setPassword('')
       }
@@ -84,7 +117,6 @@ export default function Login() {
       console.error('Login failed:', error)
       setLoading(false)
       alert('Login failed. Please try again.')
-      // Clear form on error
       setUsername('')
       setPassword('')
     }

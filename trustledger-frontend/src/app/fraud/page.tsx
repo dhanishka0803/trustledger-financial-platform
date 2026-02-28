@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Shield, AlertTriangle, TrendingUp, CheckCircle, Brain, Activity } from 'lucide-react'
+import { Shield, AlertTriangle, TrendingUp, CheckCircle, Activity } from 'lucide-react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import Sidebar from '@/components/Sidebar'
 import Header from '@/components/Header'
@@ -13,6 +13,7 @@ export default function FraudDetection() {
   const [fraudStats, setFraudStats] = useState<any>(null)
   const [fraudAlerts, setFraudAlerts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
 
   useEffect(() => {
     loadFraudData()
@@ -55,16 +56,16 @@ export default function FraudDetection() {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header />
-          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
+          <Header onMobileMenuToggle={() => setIsMobileSidebarOpen(true)} />
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
             <div className="container mx-auto px-6 py-8">
               <div className="flex items-center justify-center h-64">
                 <div className="text-center">
                   <Activity className="w-8 h-8 animate-spin text-teal-600 mx-auto mb-4" />
-                  <p className="text-gray-600">Loading fraud data...</p>
+                  <p className="text-gray-600 dark:text-gray-400">Loading fraud data...</p>
                 </div>
               </div>
             </div>
@@ -76,9 +77,12 @@ export default function FraudDetection() {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-      <Sidebar />
+      <Sidebar 
+        isMobileOpen={isMobileSidebarOpen} 
+        onMobileClose={() => setIsMobileSidebarOpen(false)} 
+      />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Header onMobileMenuToggle={() => setIsMobileSidebarOpen(true)} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-6 py-8">
             <div className="flex items-center justify-between mb-6">
@@ -96,9 +100,9 @@ export default function FraudDetection() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-sm">Total Analyzed</CardTitle>
+                  <CardTitle className="text-sm dark:text-white">Total Analyzed</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">{fraudStats?.total_analyzed || 0}</div>
@@ -106,9 +110,9 @@ export default function FraudDetection() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-sm">High Risk Cases</CardTitle>
+                  <CardTitle className="text-sm dark:text-white">High Risk Cases</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-red-600">{fraudStats?.high_risk_count || 0}</div>
@@ -116,9 +120,9 @@ export default function FraudDetection() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-sm">Avg Risk Score</CardTitle>
+                  <CardTitle className="text-sm dark:text-white">Avg Risk Score</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className={`text-2xl font-bold ${
@@ -136,9 +140,9 @@ export default function FraudDetection() {
             {/* Fraud Trend Chart */}
             {fraudStats?.trend_data && fraudStats.trend_data.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <Card>
+                <Card className="dark:bg-gray-800 dark:border-gray-700">
                   <CardHeader>
-                    <CardTitle>Fraud Detection Trend (7 Days)</CardTitle>
+                    <CardTitle className="dark:text-white">Fraud Detection Trend (7 Days)</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={250}>
@@ -154,9 +158,9 @@ export default function FraudDetection() {
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="dark:bg-gray-800 dark:border-gray-700">
                   <CardHeader>
-                    <CardTitle>Fraud Types Distribution</CardTitle>
+                    <CardTitle className="dark:text-white">Fraud Types Distribution</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={250}>
@@ -176,27 +180,21 @@ export default function FraudDetection() {
               </div>
             )}
 
-            <Card>
+            <Card className="dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Recent Fraud Alerts</CardTitle>
-                  <div className="flex items-center text-teal-600">
-                    <Brain className="w-5 h-5 mr-2" />
-                    <span className="text-sm font-semibold">AI Powered</span>
-                  </div>
-                </div>
+                <CardTitle className="dark:text-white">Recent Fraud Alerts</CardTitle>
               </CardHeader>
               <CardContent>
                 {fraudAlerts.length === 0 ? (
                   <div className="text-center py-8">
                     <Shield className="w-12 h-12 text-green-500 mx-auto mb-4" />
-                    <p className="text-gray-500">No fraud alerts found</p>
-                    <p className="text-sm text-gray-400">Your transactions are being monitored</p>
+                    <p className="text-gray-500 dark:text-gray-400">No fraud alerts found</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">Your transactions are being monitored</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {fraudAlerts.slice(0, 10).map((alert: any) => (
-                      <div key={alert.id} className="flex items-center justify-between p-4 border dark:border-gray-700 rounded-lg">
+                      <div key={alert.id} className="flex items-center justify-between p-4 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-700">
                         <div className="flex items-center space-x-4">
                           {alert.risk_score >= 70 ? (
                             <AlertTriangle className="w-6 h-6 text-red-500" />
@@ -212,10 +210,10 @@ export default function FraudDetection() {
                             </p>
                             <p className="text-xs text-teal-600 mt-1">
                               {alert.risk_level === 'critical' || alert.risk_level === 'high' 
-                                ? 'AI: Suspicious pattern detected' 
+                                ? 'Suspicious pattern detected' 
                                 : alert.risk_level === 'medium'
-                                ? 'AI: Unusual activity'
-                                : 'AI: Normal transaction'}
+                                ? 'Unusual activity'
+                                : 'Normal transaction'}
                             </p>
                           </div>
                         </div>
@@ -229,7 +227,7 @@ export default function FraudDetection() {
                           }`}>
                             {alert.risk_level?.toUpperCase() || 'LOW'}
                           </p>
-                          <p className="text-sm text-gray-500">Score: {Math.round(alert.risk_score)}/100</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">Score: {Math.round(alert.risk_score)}/100</p>
                           <Button 
                             size="sm" 
                             className="mt-2" 

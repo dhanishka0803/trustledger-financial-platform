@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { 
   Home, 
   Shield, 
@@ -39,6 +39,7 @@ interface SidebarProps {
 
 export default function Sidebar({ isMobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [collapsed, setCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -51,9 +52,15 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const handleNavClick = () => {
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // Close sidebar on mobile when clicking a link
     if (isMobile && onMobileClose) {
+      e.preventDefault()
       onMobileClose()
+      // Small delay to allow animation to complete
+      setTimeout(() => {
+        router.push(href)
+      }, 150)
     }
   }
 
@@ -62,7 +69,7 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
       {/* Mobile Overlay */}
       {isMobile && isMobileOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden animate-fade-in"
           onClick={onMobileClose}
         />
       )}
@@ -83,11 +90,11 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-teal-700">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center shadow-lg">
+            <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center shadow-lg animate-scale-in">
               <Shield className="w-5 h-5 text-white" />
             </div>
             {(!collapsed || isMobile) && (
-              <span className="text-xl font-bold text-white tracking-tight">
+              <span className="text-xl font-bold text-white tracking-tight animate-fade-in">
                 TRUSTLEDGER
               </span>
             )}
@@ -105,19 +112,20 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
         {/* Navigation */}
         <nav className="mt-8">
           <div className="px-4 space-y-2">
-            {navigation.map((item) => {
+            {navigation.map((item, index) => {
               const isActive = pathname === item.href
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  onClick={handleNavClick}
+                  onClick={(e) => handleNavClick(e, item.href)}
                   className={cn(
-                    "flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
+                    "flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-105",
                     isActive
                       ? "bg-teal-600 text-white shadow-md"
                       : "text-teal-100 hover:bg-teal-800 hover:text-white"
                   )}
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <item.icon className={cn("flex-shrink-0", (collapsed && !isMobile) ? "w-5 h-5" : "w-5 h-5 mr-3")} />
                   {(!collapsed || isMobile) && item.name}
@@ -132,7 +140,7 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
           <div className="absolute bottom-4 left-4">
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-2 rounded-lg bg-teal-800 hover:bg-teal-700 transition-colors"
+              className="p-2 rounded-lg bg-teal-800 hover:bg-teal-700 transition-colors hover:scale-110"
             >
               <BarChart3 className="w-4 h-4 text-white" />
             </button>
