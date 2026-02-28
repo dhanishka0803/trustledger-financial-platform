@@ -223,6 +223,8 @@ export default function Transactions() {
     .filter(t => t.amount < 0)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0)
 
+  const netBalance = totalIncome - totalExpenses
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar 
@@ -392,9 +394,9 @@ export default function Transactions() {
                 </CardHeader>
                 <CardContent>
                   <div className={`text-2xl font-bold ${
-                    totalIncome - totalExpenses >= 0 ? 'text-green-600' : 'text-red-600'
+                    netBalance >= 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    ₹{(totalIncome - totalExpenses).toLocaleString('en-IN')}
+                    ₹{netBalance.toLocaleString('en-IN')}
                   </div>
                 </CardContent>
               </Card>
