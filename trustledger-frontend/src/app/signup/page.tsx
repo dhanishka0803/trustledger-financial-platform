@@ -103,6 +103,7 @@ export default function SignUp() {
   }
 
   const handleSignUp = async () => {
+    console.log('Signup attempt started')
     if (formData.password !== formData.confirmPassword) {
       speak('Passwords do not match')
       alert('Passwords do not match')
@@ -118,6 +119,7 @@ export default function SignUp() {
     }
     
     setIsSubmitting(true)
+    console.log('Setting submitting to true')
     
     try {
       // Generate username from email or name
@@ -198,8 +200,11 @@ export default function SignUp() {
       
       speak('Account created successfully')
       
-      // Immediate redirect
-      window.location.href = '/dashboard'
+      console.log('About to redirect to dashboard')
+      // Immediate redirect with timeout
+      setTimeout(() => {
+        window.location.href = '/dashboard'
+      }, 100)
       
     } catch (err: any) {
       console.error('Signup error:', err)

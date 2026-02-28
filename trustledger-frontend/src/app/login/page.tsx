@@ -27,6 +27,7 @@ export default function Login() {
   }
 
   const handleLogin = async () => {
+    console.log('Login attempt started')
     if (!username || !password) {
       speak('Please enter username and password')
       alert('Please enter both username and password')
@@ -34,6 +35,7 @@ export default function Login() {
     }
 
     setLoading(true)
+    console.log('Setting loading to true')
 
     try {
       // Check for registered users from signup
@@ -75,8 +77,11 @@ export default function Login() {
         setUsername('')
         setPassword('')
         
+        console.log('About to redirect to dashboard')
         // Force navigation to dashboard
-        window.location.href = '/dashboard'
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 100)
         return
       }
       
