@@ -130,13 +130,8 @@ export default function Transactions() {
       // Create transaction with proper error handling
       let response
       try {
-        response = await transactionAPI.create({
-          merchant: formData.merchant,
-          amount: finalAmount,
-          category: formData.category,
-          description: formData.description,
-          location: formData.location
-        })
+        // Skip API call since backend isn't running
+        throw new Error('API not available')
       } catch (apiError) {
         console.log('API failed, using local storage fallback')
         // Fallback to local storage if API fails
