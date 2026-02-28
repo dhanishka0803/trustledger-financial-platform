@@ -223,7 +223,7 @@ export default function Transactions() {
     .filter(t => t.amount < 0)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0)
 
-  const netBalance = totalIncome - totalExpenses
+  const netBalance = Math.max(0, totalIncome - totalExpenses)
 
   return (
     <div className="flex h-screen bg-gray-50">
