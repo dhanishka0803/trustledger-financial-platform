@@ -38,9 +38,14 @@ export default function Login() {
     try {
       // Check for registered users from signup
       const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      console.log('Registered users:', registeredUsers) // Debug log
+      
       const foundUser = registeredUsers.find((user: any) => 
         (user.username === username || user.email === username) && user.password === password
       )
+      
+      console.log('Looking for:', { username, password }) // Debug log
+      console.log('Found user:', foundUser) // Debug log
 
       if (foundUser) {
         console.log('Registered user login successful')
