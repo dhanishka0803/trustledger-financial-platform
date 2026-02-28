@@ -125,6 +125,18 @@ export default function SignUp() {
       
       // Save user to registered users list
       const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      
+      // Check if user already exists
+      const existingUser = registeredUsers.find((user: any) => 
+        user.email === formData.email || user.username === username
+      )
+      
+      if (existingUser) {
+        alert('User already exists with this email or username')
+        setIsSubmitting(false)
+        return
+      }
+      
       const newUser = {
         id: Date.now().toString(),
         username: username,
@@ -137,11 +149,15 @@ export default function SignUp() {
           highContrast: formData.accessibilityNeeds.visualImpairment ? 'true' : 'false',
           voiceMode: formData.accessibilityNeeds.visualImpairment ? 'true' : 'false',
           simpleMode: formData.accessibilityNeeds.cognitiveDisability ? 'true' : 'false'
-        } : {}
+        } : {},
+        createdAt: new Date().toISOString()
       }
       
       registeredUsers.push(newUser)
       localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers))
+      
+      console.log('User registered:', newUser) // Debug log
+      console.log('All registered users:', registeredUsers) // Debug log
       
       // Set auth data for current session
       localStorage.setItem('userType', 'user')
