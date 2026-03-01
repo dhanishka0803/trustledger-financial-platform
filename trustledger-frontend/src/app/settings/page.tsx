@@ -401,9 +401,7 @@ export default function Settings() {
                     <div 
                       className="inline-flex items-center justify-center h-auto py-4 px-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                       onClick={() => {
-                        try {
-                          window.open('/help', '_self')
-                        } catch (e) {
+                        if (typeof window !== 'undefined') {
                           window.location.href = '/help'
                         }
                       }}
@@ -416,13 +414,12 @@ export default function Settings() {
                     <div 
                       className="inline-flex items-center justify-center h-auto py-4 px-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                       onClick={() => {
-                        try {
+                        if (typeof window !== 'undefined') {
                           const email = 'support@trustledger.com'
                           const subject = 'Support Request from TRUSTLEDGER User'
                           const body = 'Hello TRUSTLEDGER Support Team,\n\nI need help with:\n\n[Please describe your issue here]\n\nThank you!'
-                          window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank')
-                        } catch (e) {
-                          alert('Please email us at: support@trustledger.com')
+                          const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+                          window.location.href = mailtoLink
                         }
                       }}
                     >
@@ -434,32 +431,10 @@ export default function Settings() {
                     <div 
                       className="inline-flex items-center justify-center h-auto py-4 px-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                       onClick={() => {
-                        const policy = `TRUSTLEDGER Privacy Policy
-
-📋 Data Collection
-We collect only necessary financial data to provide our services including transaction details, account information, and usage analytics.
-
-🔒 Data Security
-All data is encrypted using industry-standard AES-256 encryption and stored securely on protected servers with multi-layer security.
-
-🚫 Data Sharing
-We never share your personal financial data with third parties without your explicit written consent.
-
-✅ Your Rights
-You can request data deletion, export, or modification at any time by contacting our privacy team.
-
-🛡️ Fraud Protection
-We use your data to protect you from fraud and unauthorized transactions through our AI-powered security system.
-
-📞 Contact Information
-Privacy concerns: privacy@trustledger.com
-General support: support@trustledger.com
-Phone: +1 (555) 987-6543
-
-📅 Last updated: January 2024
-
-For complete terms, visit our website or contact our legal team.`
-                        alert(policy)
+                        if (typeof window !== 'undefined') {
+                          const policy = `🏦 TRUSTLEDGER Privacy Policy\n\n📋 Data Collection\nWe collect only necessary financial data to provide our services including transaction details, account information, and usage analytics.\n\n🔒 Data Security\nAll data is encrypted using industry-standard AES-256 encryption and stored securely on protected servers with multi-layer security.\n\n🚫 Data Sharing\nWe never share your personal financial data with third parties without your explicit written consent.\n\n✅ Your Rights\nYou can request data deletion, export, or modification at any time by contacting our privacy team.\n\n🛡️ Fraud Protection\nWe use your data to protect you from fraud and unauthorized transactions through our AI-powered security system.\n\n📞 Contact Information\nPrivacy concerns: privacy@trustledger.com\nGeneral support: support@trustledger.com\nPhone: +1 (555) 987-6543\n\n📅 Last updated: January 2024\n\nFor complete terms, visit our website or contact our legal team.`
+                          alert(policy)
+                        }
                       }}
                     >
                       <div className="text-center">
