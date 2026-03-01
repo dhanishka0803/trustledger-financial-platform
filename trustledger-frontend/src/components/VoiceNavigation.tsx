@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Mic, MicOff, Volume2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
+import { logout } from '@/utils/navigation'
+
 interface VoiceNavigationProps {
   currentPage?: string
 }
@@ -86,76 +88,78 @@ export default function VoiceNavigation({ currentPage = '' }: VoiceNavigationPro
   const handleVoiceCommand = (command: string) => {
     console.log('Voice command:', command)
 
-    // Navigation commands
-    if (command.includes('go to dashboard') || command.includes('dashboard')) {
-      speak('Going to dashboard')
-      router.push('/dashboard')
-    }
-    else if (command.includes('go to transactions') || command.includes('transactions')) {
-      speak('Going to transactions')
-      router.push('/transactions')
-    }
-    else if (command.includes('go to fraud') || command.includes('fraud detection')) {
-      speak('Going to fraud detection')
-      router.push('/fraud')
-    }
-    else if (command.includes('go to market') || command.includes('market analytics')) {
-      speak('Going to market analytics')
-      router.push('/market')
-    }
-    else if (command.includes('go to compliance') || command.includes('compliance')) {
-      speak('Going to compliance')
-      router.push('/compliance')
-    }
-    else if (command.includes('go to reports') || command.includes('reports')) {
-      speak('Going to reports')
-      router.push('/reports')
-    }
-    else if (command.includes('go to settings') || command.includes('settings')) {
-      speak('Going to settings')
-      router.push('/settings')
-    }
-    else if (command.includes('go to green') || command.includes('green finance')) {
-      speak('Going to green finance')
-      router.push('/green')
-    }
-    else if (command.includes('go to assistant') || command.includes('ai assistant')) {
-      speak('Going to AI assistant')
-      router.push('/assistant')
-    }
-    
-    // Account commands
-    else if (command.includes('logout') || command.includes('sign out')) {
-      speak('Logging out')
-      localStorage.clear()
-      router.push('/')
-    }
-    else if (command.includes('freeze account')) {
-      speak('Account freeze feature - please use the dashboard button')
-    }
-    
-    // Information commands
-    else if (command.includes('balance') || command.includes('my balance')) {
-      speak('Your current balance information is displayed on the dashboard')
-    }
-    else if (command.includes('help') || command.includes('commands')) {
-      speakHelp()
-    }
-    else if (command.includes('what page') || command.includes('where am i')) {
-      speak(`You are currently on the ${currentPage || 'main'} page`)
-    }
-    
-    // Accessibility commands
-    else if (command.includes('large text') || command.includes('bigger text')) {
-      toggleLargeText()
-    }
-    else if (command.includes('high contrast') || command.includes('dark mode')) {
-      toggleHighContrast()
-    }
-    
-    else {
-      speak('Command not recognized. Say "help" to hear available commands.')
-    }
+    // Add a small delay to prevent conflicts with other navigation
+    setTimeout(() => {
+      // Navigation commands
+      if (command.includes('go to dashboard') || command.includes('dashboard')) {
+        speak('Going to dashboard')
+        router.push('/dashboard')
+      }
+      else if (command.includes('go to transactions') || command.includes('transactions')) {
+        speak('Going to transactions')
+        router.push('/transactions')
+      }
+      else if (command.includes('go to fraud') || command.includes('fraud detection')) {
+        speak('Going to fraud detection')
+        router.push('/fraud')
+      }
+      else if (command.includes('go to market') || command.includes('market analytics')) {
+        speak('Going to market analytics')
+        router.push('/market')
+      }
+      else if (command.includes('go to compliance') || command.includes('compliance')) {
+        speak('Going to compliance')
+        router.push('/compliance')
+      }
+      else if (command.includes('go to reports') || command.includes('reports')) {
+        speak('Going to reports')
+        router.push('/reports')
+      }
+      else if (command.includes('go to settings') || command.includes('settings')) {
+        speak('Going to settings')
+        router.push('/settings')
+      }
+      else if (command.includes('go to green') || command.includes('green finance')) {
+        speak('Going to green finance')
+        router.push('/green')
+      }
+      else if (command.includes('go to assistant') || command.includes('ai assistant')) {
+        speak('Going to AI assistant')
+        router.push('/assistant')
+      }
+      
+      // Account commands
+      else if (command.includes('logout') || command.includes('sign out')) {
+        speak('Logging out')
+        logout()
+      }
+      else if (command.includes('freeze account')) {
+        speak('Account freeze feature - please use the dashboard button')
+      }
+      
+      // Information commands
+      else if (command.includes('balance') || command.includes('my balance')) {
+        speak('Your current balance information is displayed on the dashboard')
+      }
+      else if (command.includes('help') || command.includes('commands')) {
+        speakHelp()
+      }
+      else if (command.includes('what page') || command.includes('where am i')) {
+        speak(`You are currently on the ${currentPage || 'main'} page`)
+      }
+      
+      // Accessibility commands
+      else if (command.includes('large text') || command.includes('bigger text')) {
+        toggleLargeText()
+      }
+      else if (command.includes('high contrast') || command.includes('dark mode')) {
+        toggleHighContrast()
+      }
+      
+      else {
+        speak('Command not recognized. Say "help" to hear available commands.')
+      }
+    }, 100)
   }
 
   const speakHelp = () => {

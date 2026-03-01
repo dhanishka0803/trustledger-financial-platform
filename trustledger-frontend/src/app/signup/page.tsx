@@ -93,13 +93,19 @@ export default function SignUp() {
 
   const handleNext = () => {
     if (step === 1) {
-      if (!formData.name || !formData.email) {
+      if (!formData.name || !formData.email || !formData.mobile) {
         speak('Please fill in all required fields')
+        alert('Please fill in all required fields: Name, Email, and Mobile Number')
+        return
+      }
+      if (formData.mobile.length !== 10) {
+        speak('Please enter a valid 10-digit mobile number')
+        alert('Please enter a valid 10-digit mobile number')
         return
       }
     }
     setStep(step + 1)
-    speak(`Step ${step + 1} of 3`)
+    speak(`Step ${step + 1} of 4`)
   }
 
   const handleSignUp = async () => {
@@ -198,13 +204,11 @@ export default function SignUp() {
         }
       }
       
-      speak('Account created successfully')
+      speak('Account created successfully. Redirecting to dashboard.')
       
       console.log('About to redirect to dashboard')
-      // Immediate redirect with timeout
-      setTimeout(() => {
-        window.location.href = '/dashboard'
-      }, 100)
+      // Immediate redirect
+      window.location.href = '/dashboard'
       
     } catch (err: any) {
       console.error('Signup error:', err)
@@ -279,19 +283,44 @@ export default function SignUp() {
 
               <div>
                 <label htmlFor="mobile" className="block text-sm font-medium mb-2">
-                  {simpleMode ? 'Your Phone Number' : 'Mobile Number'}
+                  {simpleMode ? 'Your Phone Number' : 'Mobile Number'} *
                 </label>
                 <Input
                   id="mobile"
                   type="tel"
-                  placeholder={simpleMode ? 'Enter your phone number' : '+91 9876543210'}
+                  placeholder={simpleMode ? 'Enter 10-digit phone number' : '9876543210'}
                   value={formData.mobile}
-                  onChange={(e) => handleInputChange('mobile', e.target.value)}
-                  onFocus={() => speak('Enter your phone number')}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '')
+                    if (value.length <= 10) {
+                      handleInputChange('mobile', value)
+                    }
+                  }}
+                  onFocus={() => speak('Enter your 10-digit phone number')}
                   className={`${largeText ? 'text-lg p-4' : ''} ${
                     highContrast ? 'bg-gray-800 border-white text-white' : ''
+                  } ${
+                    formData.mobile && (formData.mobile.length < 10 || formData.mobile.length > 10)
+                      ? 'border-red-500'
+                      : formData.mobile.length === 10
+                      ? 'border-green-500'
+                      : ''
                   }`}
+                  required
+                  maxLength={10}
                 />
+                {formData.mobile && (
+                  <p className={`text-xs mt-1 ${
+                    formData.mobile.length === 10
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }`}>
+                    {formData.mobile.length === 10
+                      ? '✓ Valid phone number'
+                      : `✗ Enter exactly 10 digits (${formData.mobile.length}/10)`
+                    }
+                  </p>
+                )}
               </div>
 
               <Button 

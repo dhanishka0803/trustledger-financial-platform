@@ -24,6 +24,13 @@ export default function Dashboard() {
   const router = useRouter()
 
   useEffect(() => {
+    // Check authentication
+    const isLoggedIn = localStorage.getItem('isLoggedIn')
+    if (!isLoggedIn) {
+      router.replace('/login')
+      return
+    }
+    
     // Check if account is frozen
     const accountFrozen = localStorage.getItem('isAccountFrozen') === 'true'
     setIsAccountFrozen(accountFrozen)

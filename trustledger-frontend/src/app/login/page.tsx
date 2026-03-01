@@ -45,7 +45,7 @@ export default function Login() {
       
       // Show registered users in alert for debugging
       if (registeredUsers.length > 0) {
-        console.log('Available users:', registeredUsers.map(u => `${u.username}/${u.email}`).join(', '))
+        console.log('Available users:', registeredUsers.map((u: any) => `${u.username}/${u.email}`).join(', '))
       }
       
       const foundUser = registeredUsers.find((user: any) => 
@@ -76,19 +76,19 @@ export default function Login() {
         speak('Login successful')
         setUsername('')
         setPassword('')
+        setLoading(false)
         
         console.log('About to redirect to dashboard')
-        // Force navigation to dashboard
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 100)
+        // Force a page refresh to ensure proper navigation
+        window.location.href = '/dashboard'
+        
         return
       }
       
       // Default demo accounts
       if (username === 'admin' && password === 'admin123') {
         console.log('Admin login successful')
-        localStorage.clear()
+        // DON'T clear localStorage - preserve registered users
         localStorage.setItem('userType', 'admin')
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userName', 'Admin User')
@@ -98,12 +98,13 @@ export default function Login() {
         setUsername('')
         setPassword('')
         
-        // Force navigation to admin
+        setLoading(false)
+        alert('Admin login successful! Redirecting to admin panel...')
         window.location.href = '/admin'
         
       } else if (username === 'user' && password === 'user123') {
         console.log('User login successful')
-        localStorage.clear()
+        // DON'T clear localStorage - preserve registered users
         localStorage.setItem('userType', 'user')
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userName', 'Demo User')
@@ -116,7 +117,7 @@ export default function Login() {
         setUsername('')
         setPassword('')
         
-        // Force navigation to dashboard
+        setLoading(false)
         window.location.href = '/dashboard'
         
       } else {
@@ -238,6 +239,7 @@ export default function Login() {
               type="submit"
               className={`w-full bg-teal-600 hover:bg-teal-700 transform transition-all duration-200 hover:scale-105 ${largeText ? 'text-lg p-4' : ''}`}
               disabled={loading}
+              onClick={() => console.log('Login button clicked!')}
             >
               {loading ? (
                 <div className="flex items-center">
@@ -255,6 +257,23 @@ export default function Login() {
                 Sign Up
               </Link>
             </p>
+            
+            {/* Debug: Show registered users */}
+            <button 
+              type="button"
+              onClick={() => {
+                const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+                if (users.length === 0) {
+                  alert('No registered users found. Please sign up first.')
+                } else {
+                  const userList = users.map((u: any) => `Username: ${u.username}\nEmail: ${u.email}\nPassword: ${u.password}`).join('\n\n')
+                  alert(`Registered Users (${users.length}):\n\n${userList}`)
+                }
+              }}
+              className="mt-2 text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              Show Registered Users (Debug)
+            </button>
           </div>
 
 

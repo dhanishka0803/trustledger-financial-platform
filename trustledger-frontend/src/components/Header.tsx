@@ -13,6 +13,8 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu'
 
+import { logout } from '@/utils/navigation'
+
 interface HeaderProps {
   onMobileMenuToggle?: () => void
 }
@@ -30,23 +32,40 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
     setUserName(name)
     setUserEmail(email)
     
-    // Check for saved dark mode preference
     const savedDarkMode = localStorage.getItem('darkMode') === 'true'
     setDarkMode(savedDarkMode)
     if (savedDarkMode) {
       document.documentElement.classList.add('dark')
+      document.body.classList.add('dark')
     }
     
-    // Check for voice mode
     const savedVoiceMode = localStorage.getItem('voiceMode') === 'true'
     setVoiceMode(savedVoiceMode)
+    
+    // Calculate notification count
+    const userId = localStorage.getItem('userId') || 'user'
+    const transactions = JSON.parse(localStorage.getItem(`transactions_${userId}`) || '[]')
+    const highRiskTransactions = transactions.filter((t: any) => t.fraud_score > 70)
+    const isAccountFrozen = localStorage.getItem('isAccountFrozen') === 'true'
+    
+    let count = 0
+    if (highRiskTransactions.length > 0) count++
+    if (isAccountFrozen) count++
+    
+    setNotifications(count)
   }, [])
 
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode
     setDarkMode(newDarkMode)
     localStorage.setItem('darkMode', String(newDarkMode))
-    document.documentElement.classList.toggle('dark')
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark')
+      document.body.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      document.body.classList.remove('dark')
+    }
   }
 
   const toggleVoiceMode = () => {
@@ -63,64 +82,57 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
 
   const handleLogout = () => {
     if (!window.confirm('Are you sure you want to log out?')) return
-    
-    localStorage.removeItem('token')
-    localStorage.removeItem('isLoggedIn')
-    localStorage.removeItem('userType')
-    localStorage.removeItem('userEmail')
-    localStorage.removeItem('userName')
-    localStorage.removeItem('userId')
-    localStorage.removeItem('hasTransactions')
-    window.location.href = '/'
+    logout()
   }
 
-  // Get relevant notifications based on user settings
   const getNotifications = () => {
-    const fraudAlerts = localStorage.getItem('fraudAlerts') !== 'false'
-    const transactionAlerts = localStorage.getItem('transactionAlerts') !== 'false'
-    const marketUpdates = localStorage.getItem('marketUpdates') !== 'false'
+    if (typeof window === 'undefined') return []
+    
+    const isAccountFrozen = localStorage.getItem('isAccountFrozen') === 'true'
+    const userId = localStorage.getItem('userId') || 'user'
+    const transactions = JSON.parse(localStorage.getItem(`transactions_${userId}`) || '[]')
+    const highRiskTransactions = transactions.filter((t: any) => t.fraud_score > 70)
     
     const notifications = []
     
-    if (fraudAlerts) {
+    if (highRiskTransactions.length > 0) {
       notifications.push(
         <DropdownMenuItem key="fraud" className="flex flex-col items-start p-3">
           <div className="flex items-start space-x-2 w-full">
             <Shield className="w-4 h-4 text-red-500 mt-1" />
             <div className="flex-1">
               <p className="font-semibold text-sm">Fraud Alert</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Suspicious transaction detected</p>
-              <p className="text-xs text-gray-400 mt-1">2 hours ago</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">{highRiskTransactions.length} suspicious transaction(s) detected</p>
+              <p className="text-xs text-gray-400 mt-1">Just now</p>
             </div>
           </div>
         </DropdownMenuItem>
       )
     }
     
-    if (transactionAlerts) {
+    if (isAccountFrozen) {
       notifications.push(
-        <DropdownMenuItem key="payment" className="flex flex-col items-start p-3">
+        <DropdownMenuItem key="frozen" className="flex flex-col items-start p-3">
           <div className="flex items-start space-x-2 w-full">
-            <CreditCard className="w-4 h-4 text-blue-500 mt-1" />
+            <Shield className="w-4 h-4 text-orange-500 mt-1" />
             <div className="flex-1">
-              <p className="font-semibold text-sm">Payment Received</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400">₹5,000 credited to account</p>
-              <p className="text-xs text-gray-400 mt-1">5 hours ago</p>
+              <p className="font-semibold text-sm">Account Frozen</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Your account is currently frozen for security</p>
+              <p className="text-xs text-gray-400 mt-1">Active</p>
             </div>
           </div>
         </DropdownMenuItem>
       )
     }
     
-    if (marketUpdates) {
+    if (notifications.length === 0) {
       notifications.push(
-        <DropdownMenuItem key="market" className="flex flex-col items-start p-3">
+        <DropdownMenuItem key="clear" className="flex flex-col items-start p-3">
           <div className="flex items-start space-x-2 w-full">
-            <FileText className="w-4 h-4 text-green-500 mt-1" />
+            <Shield className="w-4 h-4 text-green-500 mt-1" />
             <div className="flex-1">
-              <p className="font-semibold text-sm">Market Update</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400">NIFTY up 0.8% today</p>
-              <p className="text-xs text-gray-400 mt-1">1 day ago</p>
+              <p className="font-semibold text-sm">All Clear</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">No security issues detected</p>
             </div>
           </div>
         </DropdownMenuItem>

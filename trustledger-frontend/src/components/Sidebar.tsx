@@ -55,12 +55,9 @@ export default function Sidebar({ isMobileOpen = false, onMobileClose }: Sidebar
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     // Close sidebar on mobile when clicking a link
     if (isMobile && onMobileClose) {
-      e.preventDefault()
       onMobileClose()
-      // Small delay to allow animation to complete
-      setTimeout(() => {
-        router.push(href)
-      }, 150)
+      // Navigate immediately without delay
+      router.push(href)
     }
   }
 
