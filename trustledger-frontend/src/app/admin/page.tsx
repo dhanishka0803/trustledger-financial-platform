@@ -35,9 +35,10 @@ export default function AdminPanel() {
   useEffect(() => {
     const checkAuth = () => {
       const isLoggedIn = localStorage.getItem('isLoggedIn')
-      const userType = localStorage.getItem('userType')
+      const userRole = localStorage.getItem('userRole')
+      const username = localStorage.getItem('username')
       
-      if (!isLoggedIn || userType !== 'admin') {
+      if (!isLoggedIn || (userRole !== 'admin' && username !== 'admin')) {
         router.push('/login')
         return
       }
@@ -59,6 +60,7 @@ export default function AdminPanel() {
       // Get all registered users
       const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
       
+      // Add demo users to the list
       users.forEach(userId => {
         const userTransactions = localStorage.getItem(`transactions_${userId}`)
         if (userTransactions) {
@@ -79,6 +81,12 @@ export default function AdminPanel() {
         const userTxns = localStorage.getItem(`transactions_${user.id}`)
         if (userTxns) {
           const parsed = JSON.parse(userTxns)
+          allTransactions.push(...parsed)
+        }
+        // Also try with username
+        const userTxnsByUsername = localStorage.getItem(`transactions_${user.username}`)
+        if (userTxnsByUsername) {
+          const parsed = JSON.parse(userTxnsByUsername)
           allTransactions.push(...parsed)
         }
       })
@@ -133,12 +141,11 @@ export default function AdminPanel() {
   const handleNavigation = async (path: string) => {
     try {
       setLoading(true)
-      await router.push(path)
+      // Use window.location.href for more reliable navigation
+      window.location.href = path
     } catch (error) {
       console.error('Navigation failed:', error)
       window.location.href = path
-    } finally {
-      setTimeout(() => setLoading(false), 500)
     }
   }
 

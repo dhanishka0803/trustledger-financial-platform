@@ -178,7 +178,7 @@ export default function Settings() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onMobileMenuToggle={() => setIsMobileSidebarOpen(true)} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900">
-          <div className="container mx-auto px-6 py-8">
+          <div className="container mx-auto px-6 py-8 pb-16">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
@@ -398,24 +398,75 @@ export default function Settings() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button variant="outline" className="h-auto py-4 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    <div 
+                      className="inline-flex items-center justify-center h-auto py-4 px-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                      onClick={() => {
+                        try {
+                          window.open('/help', '_self')
+                        } catch (e) {
+                          window.location.href = '/help'
+                        }
+                      }}
+                    >
                       <div className="text-center">
                         <div className="font-semibold">User Guide</div>
                         <div className="text-sm opacity-80">Learn how to use TRUSTLEDGER</div>
                       </div>
-                    </Button>
-                    <Button variant="outline" className="h-auto py-4 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    </div>
+                    <div 
+                      className="inline-flex items-center justify-center h-auto py-4 px-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                      onClick={() => {
+                        try {
+                          const email = 'support@trustledger.com'
+                          const subject = 'Support Request from TRUSTLEDGER User'
+                          const body = 'Hello TRUSTLEDGER Support Team,\n\nI need help with:\n\n[Please describe your issue here]\n\nThank you!'
+                          window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank')
+                        } catch (e) {
+                          alert('Please email us at: support@trustledger.com')
+                        }
+                      }}
+                    >
                       <div className="text-center">
                         <div className="font-semibold">Contact Support</div>
                         <div className="text-sm opacity-80">Get help from our team</div>
                       </div>
-                    </Button>
-                    <Button variant="outline" className="h-auto py-4 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    </div>
+                    <div 
+                      className="inline-flex items-center justify-center h-auto py-4 px-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                      onClick={() => {
+                        const policy = `TRUSTLEDGER Privacy Policy
+
+📋 Data Collection
+We collect only necessary financial data to provide our services including transaction details, account information, and usage analytics.
+
+🔒 Data Security
+All data is encrypted using industry-standard AES-256 encryption and stored securely on protected servers with multi-layer security.
+
+🚫 Data Sharing
+We never share your personal financial data with third parties without your explicit written consent.
+
+✅ Your Rights
+You can request data deletion, export, or modification at any time by contacting our privacy team.
+
+🛡️ Fraud Protection
+We use your data to protect you from fraud and unauthorized transactions through our AI-powered security system.
+
+📞 Contact Information
+Privacy concerns: privacy@trustledger.com
+General support: support@trustledger.com
+Phone: +1 (555) 987-6543
+
+📅 Last updated: January 2024
+
+For complete terms, visit our website or contact our legal team.`
+                        alert(policy)
+                      }}
+                    >
                       <div className="text-center">
                         <div className="font-semibold">Privacy Policy</div>
                         <div className="text-sm opacity-80">Review our privacy terms</div>
                       </div>
-                    </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

@@ -91,6 +91,8 @@ export default function Login() {
         console.log('Admin login successful')
         // DON'T clear localStorage - preserve registered users
         localStorage.setItem('userType', 'admin')
+        localStorage.setItem('userRole', 'admin')
+        localStorage.setItem('username', 'admin')
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userName', 'Admin User')
         localStorage.setItem('userEmail', 'admin@trustledger.com')
@@ -108,6 +110,8 @@ export default function Login() {
         console.log('User login successful')
         // DON'T clear localStorage - preserve registered users
         localStorage.setItem('userType', 'user')
+        localStorage.setItem('userRole', 'user')
+        localStorage.setItem('username', 'user')
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userName', 'Demo User')
         localStorage.setItem('userEmail', 'user@trustledger.com')

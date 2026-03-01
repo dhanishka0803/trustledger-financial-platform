@@ -330,64 +330,94 @@ async def mark_notification_read(
 def _generate_ai_response(user_message: str, transactions, user) -> str:
     """Generate comprehensive AI responses"""
 
-    # Greeting
-    if any(word in user_message for word in ["hello", "hi", "hey", "how are you", "good morning", "good evening"]):
-        return f"Hello {user.full_name or user.username}! 👋 I'm your TrustLedger AI assistant. I'm here to help you with:\n\n• 💰 Transaction analysis & spending insights\n• 🔍 Fraud detection & security alerts\n• 📊 Budget planning & savings goals\n• 📈 Market analysis & investment advice\n• 📋 Regulatory compliance questions\n• 🌱 Green finance & carbon tracking\n\nWhat would you like to know?"
-
-    # Balance / Money
-    if any(word in user_message for word in ["balance", "money", "account", "how much"]):
+    # Clean and normalize input
+    user_message = user_message.lower().strip()
+    
+    # Personal greetings
+    if any(word in user_message for word in ["hello", "hi", "hey"]):
+        return f"Hello {user.full_name or user.username}! 😊 How can I help you today?"
+    
+    if "how are you" in user_message:
+        return "I'm doing great, thanks for asking! 😊 I'm here to help you with anything related to your TRUSTLEDGER account - transactions, security, market info, or anything else you need."
+    
+    # Life advice questions (non-financial)
+    if "how to achieve in life" in user_message or "success in life" in user_message:
+        return "That's a great question! While I'm primarily your financial assistant, I can share that financial wellness is a key part of life success. Here are some tips:\n\n💰 Build an emergency fund (6 months expenses)\n📊 Track your spending and create budgets\n📈 Start investing early, even small amounts\n🎯 Set clear financial goals\n📚 Keep learning about money management\n\nWould you like help with any specific financial goals?"
+    
+    # Income questions
+    if "income" in user_message:
+        if transactions:
+            income_transactions = [t for t in transactions if t.amount > 0]
+            total_income = sum(t.amount for t in income_transactions)
+            avg_income = total_income / len(income_transactions) if income_transactions else 0
+            return f"💰 **Your Income Analysis:**\n\nTotal Income: ₹{total_income:,.2f}\nIncome Transactions: {len(income_transactions)}\nAverage Income: ₹{avg_income:,.2f}\n\n📊 **Income Sources:**\n{chr(10).join([f'• {t.description or "Income"}: ₹{t.amount:,.2f}' for t in income_transactions[:5]])}\n\n💡 **Tip:** {'Great income flow!' if total_income > 50000 else 'Consider exploring additional income sources.'}"
+        return "💰 **Income Tracking:**\n\nI don't see any income transactions yet. Add your salary, freelance payments, or other income sources to get detailed analysis!\n\n📈 **Income Tips:**\n• Track all income sources\n• Set up automatic savings from income\n• Monitor income growth trends\n• Plan taxes on additional income"
+    
+    # Transaction-specific questions
+    if "my transactions" in user_message or "show transactions" in user_message:
+        if transactions:
+            recent_count = min(5, len(transactions))
+            total_amount = sum(abs(t.amount) for t in transactions[:recent_count])
+            return f"Here are your recent transactions:\n\n📊 Last {recent_count} transactions totaling ₹{total_amount:,.2f}\n\nTo see all details, visit the Transactions page where you can:\n• View complete transaction history\n• Filter by date, category, or amount\n• See fraud risk scores\n• Export transaction reports\n\nWould you like me to analyze any specific transaction pattern?"
+        else:
+            return "I don't see any transactions in your account yet. Once you start adding transactions, I can provide detailed analysis including:\n\n💳 Spending patterns\n📊 Category breakdowns\n🔍 Fraud detection insights\n📈 Monthly trends\n\nWould you like help adding your first transaction?"
+    
+    # Balance inquiries
+    if any(word in user_message for word in ["balance", "money", "account balance"]):
         if transactions:
             income = sum(t.amount for t in transactions if t.amount > 0)
             expenses = sum(abs(t.amount) for t in transactions if t.amount < 0)
             balance = income - expenses
-            return f"💰 **Account Summary:**\n\n• Total Income: ₹{income:,.2f}\n• Total Expenses: ₹{expenses:,.2f}\n• Net Balance: ₹{balance:,.2f}\n• Transactions: {len(transactions)}\n\nWould you like a detailed breakdown by category?"
-        return "I don't see any recent transactions yet. Once you start making transactions, I'll provide detailed balance insights."
-
-    # Spending
-    if any(word in user_message for word in ["spending", "expense", "spent", "expenditure"]):
+            return f"💰 **Your Current Account Summary:**\n\nNet Balance: ₹{balance:,.2f}\nTotal Income: ₹{income:,.2f}\nTotal Expenses: ₹{expenses:,.2f}\nTotal Transactions: {len(transactions)}\n\n{'🎉 Great! You have a positive balance.' if balance > 0 else '💡 Consider reviewing your expenses to improve your balance.' if balance < 0 else '📊 Your income and expenses are balanced.'}"
+        return "💰 **Account Balance:**\n\nI don't see any transactions in your account yet. Once you add some transactions, I can provide detailed balance analysis including:\n\n• Net balance calculation\n• Income vs expense breakdown\n• Spending trends\n• Budget recommendations\n\nWould you like to add your first transaction?"
+    
+    # Spending analysis
+    if "spending" in user_message or "spent" in user_message or "expenses" in user_message:
         if transactions:
             expenses = [t for t in transactions if t.amount < 0]
-            total = sum(abs(t.amount) for t in expenses)
-            categories = {}
-            for t in expenses:
-                cat = t.category or "Other"
-                categories[cat] = categories.get(cat, 0) + abs(t.amount)
-
-            cat_text = "\n".join([f"  • {k}: ₹{v:,.2f}" for k, v in sorted(categories.items(), key=lambda x: -x[1])[:5]])
-            return f"📊 **Spending Analysis:**\n\nTotal spent: ₹{total:,.2f} across {len(expenses)} transactions\n\n**Top Categories:**\n{cat_text}\n\n💡 **Tip:** Consider the 50/30/20 rule - 50% needs, 30% wants, 20% savings."
-        return "No spending data available yet. Start adding transactions to get personalized spending insights!"
-
-    # Fraud
-    if any(word in user_message for word in ["fraud", "suspicious", "scam", "alert", "security"]):
-        return "🔍 **Fraud Detection Status:**\n\nI'm continuously monitoring your transactions using advanced ML algorithms:\n\n✅ **Behavioral Analysis** - Tracking spending patterns\n✅ **Geo-Location Check** - Verifying transaction locations\n✅ **Impossible Travel** - Time-distance validation\n✅ **Merchant Scoring** - Vendor reliability assessment\n✅ **Amount Anomaly** - Unusual amount detection\n\nYour account security score: **95/100** 🛡️\n\nReport any suspicious activity using the Fraud Detection page."
-
-    # Budget / Save
-    if any(word in user_message for word in ["budget", "save", "saving", "plan"]):
-        return "💰 **Smart Budget Planning:**\n\nBased on your spending patterns, I recommend the **50/30/20 Rule:**\n\n• **50% Needs** - Rent, groceries, utilities, insurance\n• **30% Wants** - Dining, entertainment, shopping\n• **20% Savings** - Emergency fund, investments, goals\n\n**Quick Tips:**\n1. Set up automatic transfers to savings\n2. Track daily expenses for 30 days\n3. Cancel unused subscriptions\n4. Use cashback credit cards wisely\n5. Build a 6-month emergency fund\n\nWould you like me to create a personalized budget plan?"
-
-    # Investment / Market
-    if any(word in user_message for word in ["invest", "market", "stock", "mutual fund", "sip"]):
-        return "📈 **Investment Insights:**\n\nCurrent market conditions suggest:\n\n• **NIFTY 50**: Moderate volatility, suitable for SIPs\n• **SENSEX**: Showing bullish trends in banking sector\n• **Gold**: Good hedge against inflation\n\n**Recommendations:**\n1. Start with ₹5,000/month SIP in index funds\n2. Diversify across large-cap and mid-cap\n3. Consider debt funds for stability\n4. Review portfolio quarterly\n5. Don't time the market - stay invested\n\n⚠️ *This is AI-generated advice. Consult a financial advisor for personalized recommendations.*"
-
-    # Compliance
-    if any(word in user_message for word in ["compliance", "kyc", "aml", "regulation"]):
-        return "📋 **Compliance Status:**\n\n✅ KYC: Verified (Last updated: 2024)\n✅ AML: All checks passed\n✅ PAN: Linked and verified\n✅ Aadhaar: Linked and verified\n\n**Compliance Score: 98/100**\n\nNext KYC review due in 6 months. All regulatory requirements are met."
-
-    # Report
-    if any(word in user_message for word in ["report", "monthly", "summary", "statement"]):
-        return "📄 **Report Generation:**\n\nI can generate the following reports:\n\n1. **Monthly Financial Summary** - Income, expenses, savings\n2. **Fraud Analysis Report** - Risk scores, alerts\n3. **Compliance Report** - KYC/AML status\n4. **Investment Performance** - Portfolio returns\n5. **Carbon Footprint Report** - Environmental impact\n\nVisit the Reports page to generate and download detailed PDF reports."
-
-    # Green / Carbon
-    if any(word in user_message for word in ["green", "carbon", "environment", "eco", "sustainable"]):
-        return "🌱 **Green Finance Insights:**\n\nYour estimated monthly carbon footprint: **2.4 kg CO2**\n\n**Eco-Friendly Tips:**\n1. Use digital payments instead of cash\n2. Choose eco-certified products\n3. Reduce energy consumption\n4. Support sustainable businesses\n5. Consider carbon offset programs\n\n**Green Score: 78/100** 🌿\n\nVisit the Green Finance page for detailed tracking."
-
-    # Help
-    if any(word in user_message for word in ["help", "what can you do", "features", "capabilities"]):
-        return "🤖 **TrustLedger AI Assistant - Capabilities:**\n\n1. 💰 **Financial Analysis** - Balance, spending, income tracking\n2. 🔍 **Fraud Detection** - Real-time security monitoring\n3. 📊 **Budget Planning** - Personalized budget recommendations\n4. 📈 **Market Insights** - Investment advice and market data\n5. 📋 **Compliance** - KYC/AML status and regulations\n6. 📄 **Reports** - Monthly financial summaries\n7. 🌱 **Green Finance** - Carbon footprint tracking\n8. 🔔 **Alerts** - Multi-channel notifications\n9. 🏦 **Account Management** - Settings and preferences\n10. 💬 **General Q&A** - Any financial question\n\nJust type your question and I'll help!"
-
-    # Thank you
-    if any(word in user_message for word in ["thank", "thanks", "appreciate"]):
-        return f"You're welcome, {user.full_name or user.username}! 😊 I'm always here to help with your financial needs. Don't hesitate to ask anything!"
-
-    # Default
-    return f"I understand you're asking about: \"{user_message}\"\n\nI'm your AI financial assistant and I can help with:\n\n• 💰 Transaction analysis & spending insights\n• 🔍 Fraud detection & security alerts\n• 📊 Budget planning & savings goals\n• 📈 Market analysis & investment advice\n• 📋 Regulatory compliance questions\n• 🌱 Green finance & carbon tracking\n\nCould you be more specific about what you'd like to know? Try asking about your balance, spending patterns, fraud alerts, or investment advice!"
+            if expenses:
+                total = sum(abs(t.amount) for t in expenses)
+                avg_transaction = total / len(expenses)
+                categories = {}
+                for t in expenses:
+                    cat = t.category or "Other"
+                    categories[cat] = categories.get(cat, 0) + abs(t.amount)
+                
+                top_category = max(categories, key=categories.get) if categories else "N/A"
+                category_breakdown = "\n".join([f"• {cat}: ₹{amount:,.2f}" for cat, amount in sorted(categories.items(), key=lambda x: -x[1])[:5]])
+                
+                return f"📊 **Your Spending Analysis:**\n\nTotal Spent: ₹{total:,.2f}\nNumber of Transactions: {len(expenses)}\nAverage per Transaction: ₹{avg_transaction:,.2f}\n\n**Top Spending Categories:**\n{category_breakdown}\n\n💡 **Insight:** Your highest spending is in {top_category} (₹{categories.get(top_category, 0):,.2f}). Consider setting a monthly budget for this category."
+            return "I can see you have transactions, but no expenses recorded yet. Add some expense transactions to get detailed spending analysis!"
+        return "📊 **Spending Analysis:**\n\nNo spending data available yet. Start adding your expense transactions to get detailed insights including:\n\n• Category-wise breakdown\n• Spending trends\n• Budget recommendations\n• Money-saving tips\n\nAdd some transactions and I'll provide personalized spending analysis!"
+    
+    # Fraud and security
+    if any(word in user_message for word in ["fraud", "security", "safe", "scam"]):
+        return "🛡️ **Your Security Status:**\n\nAccount Security: ✅ Excellent\nFraud Monitoring: ✅ Active\nRisk Score: 🟢 Low Risk\n\nOur AI continuously monitors for:\n• Unusual spending patterns\n• Location anomalies\n• Suspicious merchant activity\n• Time-based irregularities\n\n🔔 You'll get instant alerts for any suspicious activity. Your account is well protected!"
+    
+    # Investment and market questions
+    if any(word in user_message for word in ["invest", "stock", "market", "nifty", "sensex"]):
+        return "📈 **Investment Insights:**\n\nCurrent Market Status:\n• NIFTY 50: Showing moderate volatility\n• Banking sector: Performing well\n• Tech stocks: Mixed signals\n\n💡 **Recommendations:**\n• Start with SIP in index funds (₹5,000/month)\n• Diversify across sectors\n• Consider debt funds for stability\n• Review portfolio quarterly\n\n⚠️ *This is general guidance. Consult a financial advisor for personalized advice.*"
+    
+    # Budget and savings
+    if any(word in user_message for word in ["budget", "save", "saving"]):
+        if transactions:
+            income = sum(t.amount for t in transactions if t.amount > 0)
+            expenses = sum(abs(t.amount) for t in transactions if t.amount < 0)
+            savings_rate = ((income - expenses) / income * 100) if income > 0 else 0
+            return f"💰 **Budget Analysis:**\n\nCurrent Savings Rate: {savings_rate:.1f}%\n{'🎉 Excellent!' if savings_rate > 20 else '💡 Aim for 20% savings rate'}\n\n**50/30/20 Rule Recommendation:**\n• 50% Needs (₹{income * 0.5:,.0f})\n• 30% Wants (₹{income * 0.3:,.0f})\n• 20% Savings (₹{income * 0.2:,.0f})\n\nWould you like help creating a detailed budget plan?"
+        return "💰 **Smart Budgeting Tips:**\n\n1. Follow the 50/30/20 rule\n2. Track every expense for 30 days\n3. Set up automatic savings\n4. Review and adjust monthly\n5. Build an emergency fund\n\nStart adding transactions to get personalized budget recommendations!"
+    
+    # Compliance and KYC
+    if any(word in user_message for word in ["kyc", "compliance", "verification"]):
+        return "📋 **Compliance Status:**\n\n✅ KYC: Verified and up-to-date\n✅ AML: All checks passed\n✅ Document Status: Complete\n✅ Compliance Score: 98/100\n\nNext review due in 6 months. All regulatory requirements are met. Your account is fully compliant!"
+    
+    # Thank you responses
+    if "thank" in user_message:
+        return f"You're welcome, {user.full_name or user.username}! 😊 I'm always here to help with your financial needs. Is there anything else you'd like to know?"
+    
+    # Help and capabilities
+    if "help" in user_message or "what can you do" in user_message:
+        return "🤖 **I can help you with:**\n\n💰 Account balance and transaction analysis\n📊 Spending patterns and budgeting advice\n🔍 Fraud detection and security alerts\n📈 Market insights and investment guidance\n📋 Compliance status and KYC information\n🌱 Green finance and carbon tracking\n📄 Financial reports and summaries\n\nJust ask me anything about your finances!"
+    
+    # Default response - more conversational
+    return f"I understand you're asking about '{user_message}'. I'm here to help with your financial needs!\n\nI can assist with:\n• Transaction analysis and spending insights\n• Account balance and budget planning\n• Fraud detection and security\n• Market data and investment advice\n• Compliance and KYC status\n\nCould you be more specific about what you'd like to know? For example, try asking 'What's my balance?' or 'Show my recent transactions'."

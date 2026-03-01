@@ -22,19 +22,98 @@ export default function Reports() {
   const loadReportsData = async () => {
     try {
       setLoading(true)
-      const [statsRes, insightsRes] = await Promise.all([
-        transactionAPI.getStats(90).catch(() => ({ data: null })),
-        aiAPI.getInsights().catch(() => ({ data: null }))
-      ])
       
-      if (statsRes.data && statsRes.data.total_transactions > 0) {
+      // Check if user is admin to show all data or just user data
+      const userRole = localStorage.getItem('userRole')
+      const username = localStorage.getItem('username')
+      const isAdmin = userRole === 'admin' || username === 'admin'
+      
+      let allTransactions: any[] = []
+      
+      if (isAdmin) {
+        // Admin: Load all users' transactions
+        const users = ['user', 'admin']
+        const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+        
+        // Demo users
+        users.forEach(userId => {
+          const userTransactions = localStorage.getItem(`transactions_${userId}`)
+          if (userTransactions) {
+            const parsed = JSON.parse(userTransactions)
+            allTransactions.push(...parsed)
+          }
+        })
+        
+        // Registered users
+        registeredUsers.forEach((user: any) => {
+          const userTxns = localStorage.getItem(`transactions_${user.id}`)
+          if (userTxns) {
+            const parsed = JSON.parse(userTxns)
+            allTransactions.push(...parsed)
+          }
+          const userTxnsByUsername = localStorage.getItem(`transactions_${user.username}`)
+          if (userTxnsByUsername) {
+            const parsed = JSON.parse(userTxnsByUsername)
+            allTransactions.push(...parsed)
+          }
+        })
+        
+        // General transactions
+        const generalTransactions = localStorage.getItem('transactions')
+        if (generalTransactions) {
+          const parsed = JSON.parse(generalTransactions)
+          allTransactions.push(...parsed)
+        }
+      } else {
+        // Regular user: Load only their transactions
+        const userId = localStorage.getItem('userId') || 'user'
+        const userTransactions = localStorage.getItem(`transactions_${userId}`)
+        if (userTransactions) {
+          allTransactions = JSON.parse(userTransactions)
+        }
+      }
+      
+      // Remove duplicates
+      const uniqueTransactions = allTransactions.filter((tx, index, self) => 
+        index === self.findIndex((t) => t.id === tx.id)
+      )
+      
+      if (uniqueTransactions.length > 0) {
         setHasReports(true)
-        setStats(statsRes.data)
+        
+        // Calculate stats
+        const totalIncome = uniqueTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0)
+        const totalExpenses = uniqueTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0)
+        const netBalance = totalIncome - totalExpenses
+        const avgTransaction = uniqueTransactions.length > 0 ? (totalIncome + totalExpenses) / uniqueTransactions.length : 0
+        
+        // Group by category
+        const categories: Record<string, number> = {}
+        uniqueTransactions.forEach(t => {
+          if (t.amount < 0) { // Only expenses
+            categories[t.category] = (categories[t.category] || 0) + Math.abs(t.amount)
+          }
+        })
+        
+        // Group by date for daily spending
+        const dailySpending = uniqueTransactions
+          .filter(t => t.amount < 0)
+          .map(t => ({
+            date: t.timestamp,
+            amount: Math.abs(t.amount)
+          }))
+        
+        setStats({
+          total_transactions: uniqueTransactions.length,
+          total_income: totalIncome,
+          total_expenses: totalExpenses,
+          net_balance: netBalance,
+          avg_transaction: avgTransaction,
+          categories,
+          daily_spending: dailySpending
+        })
       }
       
-      if (insightsRes.data) {
-        setInsights(insightsRes.data)
-      }
     } catch (err) {
       console.error('Failed to load reports data:', err)
     } finally {

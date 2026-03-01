@@ -29,6 +29,7 @@ const navigation = [
   { name: 'AI Assistant', href: '/assistant', icon: MessageSquare },
   { name: 'Reports', href: '/reports', icon: BarChart3 },
   { name: 'Green Finance', href: '/green', icon: Leaf },
+  { name: 'Help & Support', href: '/help', icon: Bell },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
