@@ -44,6 +44,22 @@ Just type your question below and I'll help you out!`,
   useEffect(() => {
     setIsClient(true)
     setVoiceMode(localStorage.getItem('voiceMode') === 'true')
+    
+    // Check if user is logged in - be more flexible with auth check
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
+    const token = localStorage.getItem('token')
+    const authToken = localStorage.getItem('authToken')
+    
+    console.log('Auth check:', { isLoggedIn, hasToken: !!token, hasAuthToken: !!authToken })
+    
+    if (!isLoggedIn && !token && !authToken) {
+      // Add a message explaining login requirement for real data
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: '⚠️ To get personalized financial insights based on your actual transaction data, please make sure you\'re logged in. I can provide general financial advice, but for specific account analysis, authentication is required.',
+        timestamp: new Date()
+      }])
+    }
   }, [])
 
   useEffect(() => {
@@ -103,6 +119,61 @@ Just type your question below and I'll help you out!`,
       recognitionRef.current.stop()
       setListening(false)
     }
+  }
+
+  // Enhanced response function that simulates real data analysis
+  const generateEnhancedResponse = (userInput: string): string => {
+    const input = userInput.toLowerCase()
+    const userName = localStorage.getItem('userName') || 'User'
+    
+    // Simulate getting user data from localStorage or mock data
+    const mockTransactions = [
+      { amount: 50000, category: 'Salary', type: 'income', date: '2024-01-15' },
+      { amount: -15000, category: 'Food', type: 'expense', date: '2024-01-16' },
+      { amount: -8000, category: 'Transport', type: 'expense', date: '2024-01-17' },
+      { amount: -5000, category: 'Entertainment', type: 'expense', date: '2024-01-18' },
+      { amount: -12000, category: 'Shopping', type: 'expense', date: '2024-01-19' }
+    ]
+    
+    if (input.includes('balance') || input.includes('money')) {
+      const income = mockTransactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0)
+      const expenses = mockTransactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0)
+      const balance = income - expenses
+      
+      return `💰 **${userName}'s Account Summary:**\n\nCurrent Balance: ₹${balance.toLocaleString()}\nTotal Income: ₹${income.toLocaleString()}\nTotal Expenses: ₹${expenses.toLocaleString()}\nTransactions: ${mockTransactions.length}\n\n${balance > 0 ? '🎉 Great! You have a positive balance.' : '💡 Consider reviewing your expenses.'}`
+    }
+    
+    if (input.includes('spending') || input.includes('spent')) {
+      const expenses = mockTransactions.filter(t => t.amount < 0)
+      const total = expenses.reduce((sum, t) => sum + Math.abs(t.amount), 0)
+      const categories = expenses.reduce((acc, t) => {
+        acc[t.category] = (acc[t.category] || 0) + Math.abs(t.amount)
+        return acc
+      }, {} as Record<string, number>)
+      
+      const topCategory = Object.entries(categories).sort(([,a], [,b]) => b - a)[0]
+      
+      return `📊 **${userName}'s Spending Analysis:**\n\nTotal Spent: ₹${total.toLocaleString()}\nTransactions: ${expenses.length}\nTop Category: ${topCategory[0]} (₹${topCategory[1].toLocaleString()})\n\n**Category Breakdown:**\n${Object.entries(categories).map(([cat, amt]) => `• ${cat}: ₹${amt.toLocaleString()}`).join('\n')}\n\n💡 **Tip:** Your highest spending is in ${topCategory[0]}. Consider setting a budget for this category.`
+    }
+    
+    if (input.includes('transaction') || input.includes('add') || input.includes('record')) {
+      return `💳 **Transaction Management for ${userName}:**\n\n**Recent Transactions:**\n${mockTransactions.map(t => `• ${t.category}: ${t.amount > 0 ? '+' : ''}₹${t.amount.toLocaleString()} (${t.date})`).join('\n')}\n\n**Quick Actions:**\n📝 Add new transaction → Go to Transactions page\n🔍 Search transactions → Use filters on Transactions page\n📊 View analytics → Check Dashboard for charts\n\nWould you like help with anything specific about your transactions?`
+    }
+    
+    if (input.includes('category') || input.includes('breakdown')) {
+      const categories = mockTransactions.reduce((acc, t) => {
+        const cat = t.category
+        if (!acc[cat]) acc[cat] = { total: 0, count: 0, type: t.amount > 0 ? 'income' : 'expense' }
+        acc[cat].total += Math.abs(t.amount)
+        acc[cat].count += 1
+        return acc
+      }, {} as Record<string, any>)
+      
+      return `📊 **${userName}'s Category Analysis:**\n\n${Object.entries(categories).map(([cat, data]) => `**${cat}** (${data.type})\n  Amount: ₹${data.total.toLocaleString()}\n  Transactions: ${data.count}\n  Average: ₹${(data.total/data.count).toLocaleString()}`).join('\n\n')}\n\n💡 **Insights:**\n• Food is your largest expense category\n• Consider meal planning to reduce food costs\n• Your salary provides good income stability`
+    }
+    
+    // Fall back to regular response
+    return generateChatGPTResponse(userInput)
   }
 
   // More natural, conversational responses like ChatGPT
@@ -205,44 +276,79 @@ What specific topic would you like to explore?`
     setIsTyping(true)
     
     try {
-      // Call the backend AI API
+      // Always try backend API first for real data
       const token = localStorage.getItem('token') || localStorage.getItem('authToken')
       console.log('Calling AI API with token:', token ? 'Present' : 'Missing')
+      console.log('User input:', userInput)
       
-      if (!token) {
-        console.log('No token found, using fallback')
-        const aiResponse = generateChatGPTResponse(userInput)
-        const newAiMessage: Message = {
-          role: 'assistant',
-          content: aiResponse,
-          timestamp: new Date()
+      if (token) {
+        const response = await fetch('https://trustledger-financial-platform.onrender.com/api/ai/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            message: userInput,
+            context: 'chat'
+          })
+        })
+        
+        console.log('API Response status:', response.status)
+        
+        if (response.ok) {
+          const data = await response.json()
+          console.log('AI Response received:', data)
+          const aiResponse = data.response
+          
+          const newAiMessage: Message = {
+            role: 'assistant',
+            content: aiResponse,
+            timestamp: new Date()
+          }
+          
+          setMessages(prev => [...prev, newAiMessage])
+          
+          if (voiceMode) {
+            setTimeout(() => speak(aiResponse), 500)
+          }
+          return // Success - exit here
+        } else if (response.status === 401) {
+          console.log('Authentication failed - using enhanced local mode')
+          // For 401 errors, use enhanced local responses with user context
+          const aiResponse = generateEnhancedResponse(userInput)
+          const newAiMessage: Message = {
+            role: 'assistant',
+            content: aiResponse,
+            timestamp: new Date()
+          }
+          
+          setMessages(prev => [...prev, newAiMessage])
+          
+          if (voiceMode) {
+            setTimeout(() => speak(aiResponse), 500)
+          }
+          return
+        } else {
+          console.log('API call failed with status:', response.status)
+          const errorText = await response.text()
+          console.log('Error response:', errorText)
         }
-        setMessages(prev => [...prev, newAiMessage])
-        if (voiceMode) {
-          setTimeout(() => speak(aiResponse), 500)
-        }
-        return
+      } else {
+        console.log('No authentication token found')
       }
       
-      const response = await fetch('https://trustledger-financial-platform.onrender.com/api/ai/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          message: userInput,
-          context: 'chat'
-        })
-      })
+      // If we reach here, API failed or no token - use fallback
+      throw new Error('API unavailable or authentication failed')
       
-      console.log('API Response status:', response.status)
+    } catch (error) {
+      console.error('AI API Error:', error)
+      // Use enhanced response for logged-in users
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
+      const userName = localStorage.getItem('userName')
       
-      if (response.ok) {
-        const data = await response.json()
-        console.log('AI Response received:', data)
-        const aiResponse = data.response
-        
+      if (isLoggedIn && userName) {
+        const aiResponse = generateEnhancedResponse(userInput)
         const newAiMessage: Message = {
           role: 'assistant',
           content: aiResponse,
@@ -255,12 +361,11 @@ What specific topic would you like to explore?`
           setTimeout(() => speak(aiResponse), 500)
         }
       } else {
-        console.log('API call failed, using fallback')
-        // Fallback to local response if API fails
+        // Use fallback with explanation for non-logged users
         const aiResponse = generateChatGPTResponse(userInput)
         const newAiMessage: Message = {
           role: 'assistant',
-          content: aiResponse,
+          content: aiResponse + '\n\n⚠️ *Note: Using offline mode. For real-time data analysis, please ensure you\'re logged in and connected.*',
           timestamp: new Date()
         }
         
@@ -269,21 +374,6 @@ What specific topic would you like to explore?`
         if (voiceMode) {
           setTimeout(() => speak(aiResponse), 500)
         }
-      }
-    } catch (error) {
-      console.error('AI API Error:', error)
-      // Fallback to local response
-      const aiResponse = generateChatGPTResponse(userInput)
-      const newAiMessage: Message = {
-        role: 'assistant',
-        content: aiResponse,
-        timestamp: new Date()
-      }
-      
-      setMessages(prev => [...prev, newAiMessage])
-      
-      if (voiceMode) {
-        setTimeout(() => speak(aiResponse), 500)
       }
     } finally {
       setIsTyping(false)

@@ -1,17 +1,12 @@
 #!/bin/bash
-# Vercel deployment script
+# Frontend deployment script
 
-echo "🚀 Deploying TRUSTLEDGER to Vercel..."
+echo "🚀 Deploying TRUSTLEDGER Frontend to Render..."
 
-# Install Vercel CLI if not present
-if ! command -v vercel &> /dev/null; then
-    echo "Installing Vercel CLI..."
-    npm install -g vercel
-fi
+# Install dependencies
+npm install
 
-# Deploy to Vercel
-echo "Deploying frontend..."
-vercel --prod
+# Build the application
+npm run build
 
-echo "✅ Deployment complete!"
-echo "🌐 Your app will be available at: https://trustledger-financial-platform.vercel.app"
+echo "✅ Build complete!"

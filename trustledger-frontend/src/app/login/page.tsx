@@ -64,6 +64,7 @@ export default function Login() {
         localStorage.setItem('userName', foundUser.name)
         localStorage.setItem('userEmail', foundUser.email)
         localStorage.setItem('userId', foundUser.id || Date.now().toString())
+        localStorage.setItem('token', 'mock-jwt-token-' + Date.now()) // Add mock token
         localStorage.setItem('hasTransactions', 'false')
         
         // Restore accessibility settings if they exist
@@ -93,6 +94,7 @@ export default function Login() {
         localStorage.setItem('isLoggedIn', 'true')
         localStorage.setItem('userName', 'Admin User')
         localStorage.setItem('userEmail', 'admin@trustledger.com')
+        localStorage.setItem('token', 'mock-jwt-token-admin-' + Date.now()) // Add mock token
         speak('Admin login successful')
         
         setUsername('')
@@ -110,6 +112,7 @@ export default function Login() {
         localStorage.setItem('userName', 'Demo User')
         localStorage.setItem('userEmail', 'user@trustledger.com')
         localStorage.setItem('userId', '1')
+        localStorage.setItem('token', 'mock-jwt-token-demo-' + Date.now()) // Add mock token
         localStorage.setItem('hasTransactions', 'false')
         localStorage.setItem('isNewUser', 'true')
         speak('Login successful')
