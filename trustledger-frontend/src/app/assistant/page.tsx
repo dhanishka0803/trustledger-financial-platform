@@ -37,10 +37,12 @@ Just type your question below and I'll help you out!`,
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [listening, setListening] = useState(false)
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
 
   useEffect(() => {
+    setIsClient(true)
     setVoiceMode(localStorage.getItem('voiceMode') === 'true')
   }, [])
 
@@ -106,132 +108,86 @@ Just type your question below and I'll help you out!`,
   // More natural, conversational responses like ChatGPT
   const generateChatGPTResponse = (userInput: string): string => {
     const input = userInput.toLowerCase()
-    const userName = localStorage.getItem('userName') || 'there'
+    
+    // Spending questions
+    if (input.includes('spending') || input.includes('spent') || input.includes('expense')) {
+      return `📊 **Spending Analysis:**
+
+I can help you understand your spending patterns! Here's what I can show you:
+
+💳 **Transaction breakdown by category**
+📈 **Monthly spending trends** 
+🎯 **Budget recommendations**
+💡 **Money-saving tips**
+
+To see your actual spending data, go to the Transactions page where you can view detailed analytics and add new transactions for tracking.`
+    }
+    
+    // Banking questions
+    if (input.includes('banking') || input.includes('bank')) {
+      return `🏦 **Banking Services:**
+
+I can help with various banking topics:
+
+💰 **Account Management** - Balance, statements, transfers
+🔒 **Security Features** - Fraud protection, account freezing
+📋 **Compliance** - KYC verification, regulatory requirements
+💳 **Transaction Services** - Payments, deposits, withdrawals
+🛡️ **Fraud Protection** - Real-time monitoring and alerts
+📊 **Financial Analytics** - Spending insights and budgeting
+
+What specific banking topic would you like to know more about?`
+    }
     
     // Greetings
-    if (input.includes('hello') || input.includes('hi') || input.includes('hey') || input.includes('good morning') || input.includes('good evening')) {
-      return `Hey ${userName}! 😊 How can I help you today?`
+    if (input.includes('hello') || input.includes('hi') || input.includes('hey')) {
+      return `Hello! 😊 How can I help you today?`
     }
     
     // How are you
-    if (input.includes('how are you') || input.includes('how do you do')) {
+    if (input.includes('how are you')) {
       return `I'm doing great, thanks for asking! 😊 I'm here to help you with anything related to your TRUSTLEDGER account - transactions, security, market info, or anything else you need.`
     }
     
-    // Thank you
-    if (input.includes('thank') || input.includes('thanks')) {
-      return `You're welcome, ${userName}! 😊 Is there anything else I can help you with?`
-    }
-    
-    // Fraud related
-    if (input.includes('fraud') || input.includes('scam') || input.includes('suspicious') || input.includes('hack')) {
-      return `Great question! Here's how we protect you:
-
-🛡️ Our fraud detection system analyzes every transaction in real-time
-
-📍 It checks your location and flags unusual activity
-
-🔔 You'll get instant alerts if anything suspicious happens
-
-💳 You can freeze your account instantly if needed
-
-Your current account risk score is looking good! Would you like me to check any specific transaction?`
-    }
-    
-    // Transaction questions
-    if (input.includes('transaction') || input.includes('payment') || input.includes('spent') || input.includes('transfer')) {
-      return `I can help you with that! To see your transactions, you can go to the Transactions page from the menu. There you'll find:
-
-💳 All your recent transactions
-
-📊 Your income vs expenses
-
-🔍 Search and filter options
-
-Would you like me to show you how to add a new transaction, or do you have questions about a specific one?`
-    }
-    
     // Balance questions
-    if (input.includes('balance') || input.includes('money') || input.includes('account') || input.includes('funds')) {
-      return `You can check your complete account balance on the Dashboard page. It shows:
+    if (input.includes('balance') || input.includes('money') || input.includes('account balance')) {
+      return `💰 **Account Balance:**
 
-💰 Your net balance
+You can check your complete account balance on the Dashboard page. It shows:
 
-📈 Total income and expenses
-
-📊 Spending breakdown by category
+📊 Your net balance and total funds
+📈 Income vs expenses breakdown
+💳 Recent transaction summary
+📉 Spending trends and analytics
 
 Just head to Dashboard from the menu to see all the details!`
     }
     
-    // KYC questions
-    if (input.includes('kyc') || input.includes('verification') || input.includes('documents') || input.includes('identity')) {
-      return `For KYC verification, you'll need:
+    // Transaction questions
+    if (input.includes('transaction')) {
+      return `💳 **Transactions:**
 
-📄 Government ID (Aadhaar, PAN, or Passport)
+I can help you with transaction management:
 
-🏠 Address proof
+📝 **Add new transactions** - Record income and expenses
+🔍 **Search & filter** - Find specific transactions
+📊 **Category analysis** - See spending by category
+🚨 **Fraud monitoring** - Real-time security checks
 
-📸 Recent photo
-
-You can upload these through the Compliance page. Your KYC status is showing as verified at 92%! That's great! ✅`
+Visit the Transactions page to manage all your financial activity!`
     }
     
-    // Market/Investment questions
-    if (input.includes('market') || input.includes('stock') || input.includes('invest') || input.includes('nifty') || input.includes('sensex') || input.includes('share')) {
-      return `You can find real-time market data on our Market Analytics page! It shows:
-
-📈 Live NIFTY 50 and SENSEX
-
-💹 Stock trends and analysis
-
-💼 Investment recommendations
-
-📊 Portfolio risk assessment
-
-Would you like specific information about any stock or market segment?`
-    }
-    
-    // Security/Password questions
-    if (input.includes('password') || input.includes('login') || input.includes('security') || input.includes('2fa') || input.includes('pin')) {
-      return `For account security:
-
-🔐 You can change your password in Settings
-
-🔔 Enable notifications for login alerts
-
-❄️ Use "Freeze Account" if you suspect issues
-
-Your account is protected with bank-grade security! Would you like help changing any security settings?`
-    }
-    
-    // Help/Support
-    if (input.includes('help') || input.includes('support') || input.includes('contact')) {
-      return `I'm here to help! 📞
-
-For immediate assistance:
-• Call: 1800-123-TRUST
-• Email: support@trustledger.com
-
-Or just ask me anything - I'm here to answer your questions 24/7! What do you need help with?`
-    }
-    
-    // Goodbye
-    if (input.includes('bye') || input.includes('goodbye') || input.includes('see you')) {
-      return `Goodbye, ${userName}! 👋 Feel free to come back anytime you need help. Have a great day!`
-    }
-    
-    // Default conversational response
+    // Default response
     return `I understand you're asking about "${userInput}". I'd be happy to help!
 
-Here are some things I can assist you with:
-• Your transactions and account balance
-• Fraud protection and security
-• Market data and investments
-• KYC and compliance
-• General banking questions
+I can assist with:
+• 💰 Account balance and transaction analysis
+• 🔒 Fraud protection and security features
+• 📊 Spending insights and budgeting advice
+• 📈 Market data and investment information
+• 📋 KYC compliance and account verification
 
-Could you give me a bit more detail about what you'd like to know?`
+What specific topic would you like to explore?`
   }
 
   const handleSend = async () => {
@@ -248,8 +204,75 @@ Could you give me a bit more detail about what you'd like to know?`
     setInput('')
     setIsTyping(true)
     
-    // Simulate realistic thinking delay
-    setTimeout(() => {
+    try {
+      // Call the backend AI API
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken')
+      console.log('Calling AI API with token:', token ? 'Present' : 'Missing')
+      
+      if (!token) {
+        console.log('No token found, using fallback')
+        const aiResponse = generateChatGPTResponse(userInput)
+        const newAiMessage: Message = {
+          role: 'assistant',
+          content: aiResponse,
+          timestamp: new Date()
+        }
+        setMessages(prev => [...prev, newAiMessage])
+        if (voiceMode) {
+          setTimeout(() => speak(aiResponse), 500)
+        }
+        return
+      }
+      
+      const response = await fetch('https://trustledger-financial-platform.onrender.com/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          message: userInput,
+          context: 'chat'
+        })
+      })
+      
+      console.log('API Response status:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('AI Response received:', data)
+        const aiResponse = data.response
+        
+        const newAiMessage: Message = {
+          role: 'assistant',
+          content: aiResponse,
+          timestamp: new Date()
+        }
+        
+        setMessages(prev => [...prev, newAiMessage])
+        
+        if (voiceMode) {
+          setTimeout(() => speak(aiResponse), 500)
+        }
+      } else {
+        console.log('API call failed, using fallback')
+        // Fallback to local response if API fails
+        const aiResponse = generateChatGPTResponse(userInput)
+        const newAiMessage: Message = {
+          role: 'assistant',
+          content: aiResponse,
+          timestamp: new Date()
+        }
+        
+        setMessages(prev => [...prev, newAiMessage])
+        
+        if (voiceMode) {
+          setTimeout(() => speak(aiResponse), 500)
+        }
+      }
+    } catch (error) {
+      console.error('AI API Error:', error)
+      // Fallback to local response
       const aiResponse = generateChatGPTResponse(userInput)
       const newAiMessage: Message = {
         role: 'assistant',
@@ -258,12 +281,13 @@ Could you give me a bit more detail about what you'd like to know?`
       }
       
       setMessages(prev => [...prev, newAiMessage])
-      setIsTyping(false)
       
       if (voiceMode) {
         setTimeout(() => speak(aiResponse), 500)
       }
-    }, 800 + Math.random() * 1200)
+    } finally {
+      setIsTyping(false)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -328,11 +352,13 @@ Could you give me a bit more detail about what you'd like to know?`
                         </div>
                       )}
                       <div className="whitespace-pre-wrap">{msg.content}</div>
-                      <div className={`text-xs mt-2 ${
-                        msg.role === 'user' ? 'text-teal-200' : 'text-gray-400'
-                      }`}>
-                        {msg.timestamp.toLocaleTimeString()}
-                      </div>
+                      {isClient && (
+                        <div className={`text-xs mt-2 ${
+                          msg.role === 'user' ? 'text-teal-200' : 'text-gray-400'
+                        }`}>
+                          {msg.timestamp.toLocaleTimeString()}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

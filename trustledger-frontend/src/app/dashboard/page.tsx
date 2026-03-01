@@ -51,35 +51,20 @@ export default function Dashboard() {
     if (simpleMode) document.body.classList.add('simple-mode')
   }, [])
 
+  // Add effect to refresh data when returning to dashboard
+  useEffect(() => {
+    const handleFocus = () => {
+      loadDashboardData()
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+
   const loadDashboardData = async () => {
     try {
       setLoading(true)
       
-      // For new users, set default empty state
-      const isNewUser = localStorage.getItem('isNewUser') === 'true'
-      if (isNewUser) {
-        setStats({
-          net_balance: 0,
-          total_income: 0,
-          total_transactions: 0,
-          avg_transaction: 0,
-          daily_spending: [],
-          categories: {}
-        })
-        setFraudStats({
-          average_risk_score: 0,
-          high_risk_count: 0
-        })
-        setTransactions([])
-        setFraudAlerts([])
-        setHasTransactions(false)
-        localStorage.setItem('hasTransactions', 'false')
-        localStorage.removeItem('isNewUser')
-        setLoading(false)
-        return
-      }
-      
-      // Try to load from API, but don't fail if it doesn't work
+      // Always try to load from API first
       const [statsRes, fraudRes, txnRes, alertsRes] = await Promise.all([
         transactionAPI.getStats(30).catch(() => ({ data: null })),
         fraudAPI.getStats().catch(() => ({ data: null })),
@@ -87,20 +72,34 @@ export default function Dashboard() {
         fraudAPI.getAlerts().catch(() => ({ data: [] })),
       ])
       
-      if (statsRes.data) {
+      // Check if we have any transactions
+      let hasTxns = false
+      if (statsRes.data && statsRes.data.total_transactions > 0) {
+        hasTxns = true
         setStats(statsRes.data)
-        const hasTxns = statsRes.data.total_transactions > 0
-        setHasTransactions(hasTxns)
-        localStorage.setItem('hasTransactions', hasTxns ? 'true' : 'false')
-      } else {
-        // Fallback for when API is not available
-        setHasTransactions(false)
-        localStorage.setItem('hasTransactions', 'false')
+      } else if (txnRes.data && Array.isArray(txnRes.data) && txnRes.data.length > 0) {
+        hasTxns = true
+        // Create basic stats from transaction data
+        const transactions = txnRes.data
+        const income = transactions.filter(t => t.amount > 0).reduce((sum, t) => sum + t.amount, 0)
+        const expenses = transactions.filter(t => t.amount < 0).reduce((sum, t) => sum + Math.abs(t.amount), 0)
+        setStats({
+          net_balance: income - expenses,
+          total_income: income,
+          total_transactions: transactions.length,
+          avg_transaction: transactions.length > 0 ? (income + expenses) / transactions.length : 0,
+          daily_spending: [],
+          categories: {}
+        })
       }
+      
+      setHasTransactions(hasTxns)
+      localStorage.setItem('hasTransactions', hasTxns ? 'true' : 'false')
       
       if (fraudRes.data) setFraudStats(fraudRes.data)
       if (txnRes.data) setTransactions(Array.isArray(txnRes.data) ? txnRes.data : [])
       if (alertsRes.data) setFraudAlerts(Array.isArray(alertsRes.data) ? alertsRes.data : [])
+      
     } catch (err) {
       console.error('Failed to load dashboard data:', err)
       // Fallback to localStorage check

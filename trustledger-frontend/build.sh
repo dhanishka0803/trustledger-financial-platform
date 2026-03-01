@@ -1,12 +1,10 @@
 #!/bin/bash
-# Render build script for TRUSTLEDGER frontend
+# Build script for Render deployment
 
-echo "🚀 Building TRUSTLEDGER for Render..."
-
-# Install dependencies
+echo "Installing dependencies..."
 npm install
 
-# Build the application
+echo "Building Next.js application..."
 npm run build
 
-echo "✅ Build complete!"
+echo "Build complete!"

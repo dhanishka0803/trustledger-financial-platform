@@ -22,17 +22,25 @@ export default function FraudDetection() {
   const loadFraudData = async () => {
     try {
       setLoading(true)
-      const [statsRes, alertsRes] = await Promise.all([
-        fraudAPI.getStats().catch(() => ({ data: null })),
-        fraudAPI.getAlerts().catch(() => ({ data: [] }))
-      ])
       
-      if (statsRes.data) {
-        setFraudStats(statsRes.data)
-      }
-      if (alertsRes.data) {
-        setFraudAlerts(Array.isArray(alertsRes.data) ? alertsRes.data : [])
-      }
+      // Load from localStorage
+      const userId = localStorage.getItem('userId') || 'user'
+      const transactions = JSON.parse(localStorage.getItem(`transactions_${userId}`) || '[]')
+      
+      const totalAnalyzed = transactions.length
+      const highRiskCount = transactions.filter((t: any) => t.fraud_score > 70).length
+      const avgRiskScore = transactions.length > 0 
+        ? transactions.reduce((sum: number, t: any) => sum + (t.fraud_score || 0), 0) / transactions.length
+        : 0
+      
+      setFraudStats({
+        total_analyzed: totalAnalyzed,
+        high_risk_count: highRiskCount,
+        average_risk_score: avgRiskScore
+      })
+      
+      const alerts = transactions.filter((t: any) => t.fraud_score > 40)
+      setFraudAlerts(alerts)
     } catch (err) {
       console.error('Failed to load fraud data:', err)
     } finally {

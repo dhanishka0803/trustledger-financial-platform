@@ -16,10 +16,12 @@ export default function VoiceNavigation({ currentPage = '' }: VoiceNavigationPro
   const [isSupported, setIsSupported] = useState(false)
   const [transcript, setTranscript] = useState('')
   const [voiceEnabled, setVoiceEnabled] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   const recognitionRef = useRef<any>(null)
   const router = useRouter()
 
   useEffect(() => {
+    setIsClient(true)
     // Check if speech recognition is supported
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     setIsSupported(!!SpeechRecognition)
@@ -36,7 +38,9 @@ export default function VoiceNavigation({ currentPage = '' }: VoiceNavigationPro
 
       recognition.onresult = (event: any) => {
         const command = event.results[0][0].transcript.toLowerCase().trim()
+        console.log('Speech recognized:', command)
         setTranscript(command)
+        speak('Navigating')
         handleVoiceCommand(command)
       }
 
@@ -73,8 +77,9 @@ export default function VoiceNavigation({ currentPage = '' }: VoiceNavigationPro
     if (recognitionRef.current && !isListening) {
       setIsListening(true)
       setTranscript('')
+      console.log('Starting voice recognition...')
       recognitionRef.current.start()
-      speak('Listening for command')
+      speak('Listening')
     }
   }
 
@@ -86,80 +91,39 @@ export default function VoiceNavigation({ currentPage = '' }: VoiceNavigationPro
   }
 
   const handleVoiceCommand = (command: string) => {
-    console.log('Voice command:', command)
-
-    // Add a small delay to prevent conflicts with other navigation
-    setTimeout(() => {
-      // Navigation commands
-      if (command.includes('go to dashboard') || command.includes('dashboard')) {
-        speak('Going to dashboard')
-        router.push('/dashboard')
-      }
-      else if (command.includes('go to transactions') || command.includes('transactions')) {
-        speak('Going to transactions')
-        router.push('/transactions')
-      }
-      else if (command.includes('go to fraud') || command.includes('fraud detection')) {
-        speak('Going to fraud detection')
-        router.push('/fraud')
-      }
-      else if (command.includes('go to market') || command.includes('market analytics')) {
-        speak('Going to market analytics')
-        router.push('/market')
-      }
-      else if (command.includes('go to compliance') || command.includes('compliance')) {
-        speak('Going to compliance')
-        router.push('/compliance')
-      }
-      else if (command.includes('go to reports') || command.includes('reports')) {
-        speak('Going to reports')
-        router.push('/reports')
-      }
-      else if (command.includes('go to settings') || command.includes('settings')) {
-        speak('Going to settings')
-        router.push('/settings')
-      }
-      else if (command.includes('go to green') || command.includes('green finance')) {
-        speak('Going to green finance')
-        router.push('/green')
-      }
-      else if (command.includes('go to assistant') || command.includes('ai assistant')) {
-        speak('Going to AI assistant')
-        router.push('/assistant')
-      }
-      
-      // Account commands
-      else if (command.includes('logout') || command.includes('sign out')) {
-        speak('Logging out')
-        logout()
-      }
-      else if (command.includes('freeze account')) {
-        speak('Account freeze feature - please use the dashboard button')
-      }
-      
-      // Information commands
-      else if (command.includes('balance') || command.includes('my balance')) {
-        speak('Your current balance information is displayed on the dashboard')
-      }
-      else if (command.includes('help') || command.includes('commands')) {
-        speakHelp()
-      }
-      else if (command.includes('what page') || command.includes('where am i')) {
-        speak(`You are currently on the ${currentPage || 'main'} page`)
-      }
-      
-      // Accessibility commands
-      else if (command.includes('large text') || command.includes('bigger text')) {
-        toggleLargeText()
-      }
-      else if (command.includes('high contrast') || command.includes('dark mode')) {
-        toggleHighContrast()
-      }
-      
-      else {
-        speak('Command not recognized. Say "help" to hear available commands.')
-      }
-    }, 100)
+    console.log('Voice command received:', command)
+    
+    // Simple, direct navigation
+    if (command.includes('dashboard')) {
+      window.location.href = '/dashboard'
+    }
+    else if (command.includes('transaction')) {
+      window.location.href = '/transactions'
+    }
+    else if (command.includes('fraud')) {
+      window.location.href = '/fraud'
+    }
+    else if (command.includes('market')) {
+      window.location.href = '/market'
+    }
+    else if (command.includes('assistant') || command.includes('ai')) {
+      window.location.href = '/assistant'
+    }
+    else if (command.includes('compliance')) {
+      window.location.href = '/compliance'
+    }
+    else if (command.includes('setting')) {
+      window.location.href = '/settings'
+    }
+    else if (command.includes('report')) {
+      window.location.href = '/reports'
+    }
+    else if (command.includes('green')) {
+      window.location.href = '/green'
+    }
+    else {
+      speak('Command not recognized. Try saying: dashboard, transactions, fraud, market, or assistant')
+    }
   }
 
   const speakHelp = () => {
@@ -249,7 +213,7 @@ export default function VoiceNavigation({ currentPage = '' }: VoiceNavigationPro
         )}
 
         {/* Transcript Display */}
-        {transcript && voiceEnabled && (
+        {transcript && voiceEnabled && isClient && (
           <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-lg max-w-xs">
             <p className="text-xs text-gray-600 dark:text-gray-400">Command:</p>
             <p className="text-sm font-medium">{transcript}</p>
